@@ -20,8 +20,46 @@ trap 'rm -rf "$STAGE"' EXIT
 
 cp -R "$APP" "$STAGE/"
 ln -s /Applications "$STAGE/Applications"
-rm -f "$DMG"
-hdiutil create -quiet -volname "$APP_NAME" -srcfolder "$STAGE" -fs HFS+ -format UDZO "$DMG"
+
+# Background: drawn by Icon/DMGBackground, 1x and 2x in one TIFF. The generator also prints the layout.
+mkdir -p "$STAGE/.background"
+swiftc -O Icon/DMGBackground/main.swift -o build/dmg-background
+eval "$(build/dmg-background "$APP_NAME" build/dmg-background.png build/dmg-background@2x.png)"
+tiffutil -cathidpicheck build/dmg-background.png build/dmg-background@2x.png -out "$STAGE/.background/background.tiff" 2>/dev/null
+
+# Read-write image first, so Finder can store the window layout; then compress.
+RW="build/$EXE-rw.dmg"
+rm -f "$DMG" "$RW"
+hdiutil create -quiet -volname "$APP_NAME" -srcfolder "$STAGE" -fs HFS+ -format UDRW -size 60m "$RW"
+MOUNT=$(hdiutil attach -readwrite -noverify -noautoopen "$RW" | awk -F'\t' '/\/Volumes\//{print $NF; exit}')
+DISK=$(basename "$MOUNT")
+osascript <<OSA
+tell application "Finder"
+  tell disk "$DISK"
+    open
+    set current view of container window to icon view
+    set toolbar visible of container window to false
+    set statusbar visible of container window to false
+    -- Bounds include the title bar (32 pt), the background fills the area below it.
+    set the bounds of container window to {200, 120, 200 + $DMG_WIDTH, 120 + $DMG_HEIGHT + 32}
+    set opts to the icon view options of container window
+    set arrangement of opts to not arranged
+    set icon size of opts to 128
+    set text size of opts to 13
+    set background picture of opts to file ".background:background.tiff"
+    set position of item "$APP_NAME.app" of container window to {$APP_X, $APP_Y}
+    set position of item "Applications" of container window to {$FOLDER_X, $FOLDER_Y}
+    update without registering applications
+    delay 1
+    close
+  end tell
+end tell
+OSA
+chflags hidden "$MOUNT/.background"
+sync
+hdiutil detach -quiet "$MOUNT"
+hdiutil convert -quiet "$RW" -format UDZO -imagekey zlib-level=9 -o "$DMG"
+rm -f "$RW"
 
 if [[ "$IDENTITY" == "Developer ID"* ]]; then
   codesign --force --timestamp --sign "$IDENTITY" "$DMG"
