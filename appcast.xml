@@ -4,22 +4,23 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
   <channel>
     <title>Nida Connect</title>
     <item>
-      <title>Nida Connect 1.1.0</title>
-      <pubDate>Mon, 16 Nov 2026 09:19:01 +0000</pubDate>
-      <sparkle:version>1.1.0</sparkle:version>
-      <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
+      <title>Nida Connect 1.2.0</title>
+      <pubDate>Mon, 16 Nov 2026 18:38:18 +0000</pubDate>
+      <sparkle:version>1.2.0</sparkle:version>
+      <sparkle:shortVersionString>1.2.0</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/joohann/Nida-Connect-OSX/releases/tag/v1.1.0</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/joohann/Nida-Connect-OSX/releases/tag/v1.2.0</sparkle:fullReleaseNotesLink>
       <description sparkle:format="markdown"><![CDATA[
 ### New
 
-- **Gold label at prayer time.** At the adhan the countdown in the menu bar becomes a gold label with the prayer's name, for 1, 5, 10 or 15 minutes (5 by default). It pulses with the system clock when the blinking colon is on. Opening the panel ends it. Useful when Focus mutes the notification: the label still shows. On by default; switch it off under Menu bar in the settings.
-- **New install window.** The DMG opens in a green window in the style of the app icon, with an arrow from Nida Connect to Applications.
+- **Works without Home Assistant.** Choose in the setup, or later under Source in the settings, between Nida in Home Assistant and standalone. Standalone, the prayer times come from Aladhan for where you are or for a place you search, with the calculation method you pick (23 methods, Muslim World League by default).
+- **Pre-adhan in the app.** Standalone, set the first and second pre-adhan and switch them per prayer. Defaults are Nida's: 25 and 10 minutes.
+- **Sounds from the Nida library.** Standalone, choose the adhan, the Fajr adhan and the pre-adhan jingle from the Nida sound library at nida.majikan.nl, each with its own volume. A sound is downloaded when you choose it, checked against the library's SHA-256 and kept on your Mac, so it also plays offline.
 ]]></description>
-      <enclosure url="https://github.com/joohann/Nida-Connect-OSX/releases/download/v1.1.0/NidaConnect-1.1.0.dmg" type="application/octet-stream" sparkle:edSignature="heq4LM6ptx4VsqilZI0htpUf1nzDSMWJwNMNjOCeipib17+iRE7KGC5lwSGFE1IDOM074pVO7+laVVXcDLE6Ag==" length="3375398"></enclosure>
+      <enclosure url="https://github.com/joohann/Nida-Connect-OSX/releases/download/v1.2.0/NidaConnect-1.2.0.dmg" type="application/octet-stream" sparkle:edSignature="oCyXbut5aAk+5xhgqmIToae7R4DOCgBPpnCp+kNCOk+snHICqmYRXJk52L1mw6421AIeLKWd3eQlZg5/ro0EBw==" length="3641654"></enclosure>
     </item>
   </channel>
 </rss><!-- sparkle-signatures:
-edSignature: Rc5VG++wceVWJ/K9W3mbwjYGxD3YM3bNokvLm9pV8h3qpGGaeHK8hMt7JZYbXulaEbJVSTS8GYNrSmRLuNz3Cw==
-length: 1767
+edSignature: AS+QrBMiIqIbK/CuZgsxn/UOF6gie5Xw4AVgx9YD91YBcoWiIJDh9iR10FZJlDAoOzJ7/D8vKYxn2/boKJQOBg==
+length: 2019
 -->
