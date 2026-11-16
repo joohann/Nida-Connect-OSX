@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0
+
+### New
+
+- **Works without Home Assistant.** Choose in the setup, or later under Source in the settings, between Nida in Home Assistant and standalone. Standalone, the prayer times come from Aladhan for where you are or for a place you search, with the calculation method you pick (23 methods, Muslim World League by default).
+- **Pre-adhan in the app.** Standalone, set the first and second pre-adhan and switch them per prayer. Defaults are Nida's: 25 and 10 minutes.
+- **Sounds from the Nida library.** Standalone, choose the adhan, the Fajr adhan and the pre-adhan jingle from the Nida sound library at nida.majikan.nl, each with its own volume. A sound is downloaded when you choose it, checked against the library's SHA-256 and kept on your Mac, so it also plays offline.
+
 ## 1.1.0
 
 ### New

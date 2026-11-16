@@ -12,12 +12,21 @@ struct SettingsView: View {
             HStack {
                 Text(l.t("settings.title")).font(.headline)
                 Spacer()
-                if model.connection != .notConfigured {
+                if !model.needsConnection {
                     Button(l.t("action.done"), action: onDone).controlSize(.small).keyboardShortcut(.defaultAction)
                 }
             }
-            group("settings.homeAssistant") {
-                ConnectionForm(model: model, l: l)
+            group("settings.sourceGroup") {
+                SourceRow(model: model, l: l)
+            }
+            if model.isStandalone {
+                group("settings.prayerTimes") {
+                    StandaloneTimesSettings(model: model, l: l)
+                }
+            } else {
+                group("settings.homeAssistant") {
+                    ConnectionForm(model: model, l: l)
+                }
             }
             group("settings.menuBar") {
                 row("moon.stars.fill", .indigo, "settings.showIcon", \.showIcon)
@@ -63,16 +72,22 @@ struct SettingsView: View {
             group("settings.notifications") {
                 row("bell", .orange, "settings.notifyPreAdhan1", \.notifyPreAdhan1,
                     detail: model.preAdhan.firstMinutes > 0 ? l.t("settings.minutes", model.preAdhan.firstMinutes)
-                                                              : l.t("settings.offInNida"))
+                                                              : l.t(model.isStandalone ? "state.off" : "settings.offInNida"))
                 SettingsDivider()
                 row("bell.badge", .red, "settings.notifyPreAdhan2", \.notifyPreAdhan2,
                     detail: model.preAdhan.secondEnabled ? l.t("settings.minutes", model.preAdhan.secondMinutes)
-                                                         : l.t("settings.offInNida"))
+                                                         : l.t(model.isStandalone ? "state.off" : "settings.offInNida"))
                 SettingsDivider()
                 row("moon.stars", .green, "settings.notifyAtPrayer", \.notifyAtPrayer)
             }
-            group("settings.away") {
-                AwaySettings(model: model, l: l)
+            if model.isStandalone {
+                group("settings.sound") {
+                    StandaloneSoundSettings(model: model, l: l)
+                }
+            } else {
+                group("settings.away") {
+                    AwaySettings(model: model, l: l)
+                }
             }
             if model.notificationsDenied && model.settings.wantsNotifications {
                 Text(l.t("settings.notificationsDenied")).font(.caption).foregroundStyle(.orange)

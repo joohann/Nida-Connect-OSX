@@ -14,6 +14,10 @@ struct AppConfig: Decodable {
         let distanceKm: Double
         let aladhanUrl: URL
     }
+    /// Without Home Assistant: the Nida sound library on the web.
+    struct Standalone: Decodable {
+        let soundLibraryUrl: URL
+    }
     struct Update: Decodable {
         let publicKey: String
     }
@@ -22,6 +26,7 @@ struct AppConfig: Decodable {
     let version: String
     let homeAssistant: HomeAssistant
     let away: Away
+    let standalone: Standalone
     let update: Update
 
     /// Updates need a signing key; without one the app never trusts a feed.

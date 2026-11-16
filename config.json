@@ -2,7 +2,7 @@
   "appName": "Nida Connect",
   "executableName": "NidaConnect",
   "bundleId": "nl.majikan.nidaconnect",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "minimumMacOS": "13.0",
   "repository": "joohann/Nida-Connect-OSX",
   "signing": {
@@ -18,6 +18,9 @@
   "away": {
     "distanceKm": 15,
     "aladhanUrl": "https://api.aladhan.com/v1"
+  },
+  "standalone": {
+    "soundLibraryUrl": "https://nida.majikan.nl/sounds"
   },
   "update": {
     "feedUrl": "https://raw.githubusercontent.com/{repository}/main/appcast.xml",

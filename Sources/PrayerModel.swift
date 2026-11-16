@@ -39,6 +39,15 @@ final class PrayerModel: ObservableObject {
     @Published private(set) var availableUpdate: String?
     /// Home Assistant instances found on the local network while the connection form is open.
     @Published private(set) var discovered: [DiscoveredServer] = []
+    /// Settings for running without Home Assistant.
+    @Published private(set) var standalone: StandaloneSettings
+    /// The Nida sound library, loaded when running without Home Assistant.
+    @Published private(set) var catalog: [CatalogSound] = []
+    @Published private(set) var catalogFailed = false
+    /// Library sounds being downloaded right now, by catalog id.
+    @Published private(set) var downloading: Set<String> = []
+    /// Library sounds that could not be fetched or did not match their checksum, by catalog id.
+    @Published private(set) var failedDownloads: Set<String> = []
 
     let config: AppConfig
     private let source: NidaSource
@@ -58,6 +67,8 @@ final class PrayerModel: ObservableObject {
     private let sounds: SoundCaching?
     private let player: SoundPlaying?
     private let soundPlanner = SoundPlanner()
+    private let soundCatalog: SoundCatalogLoading?
+    private var catalogTask: Task<Void, Never>?
     private let location: LocationProviding?
     private let aladhan: AladhanClient?
     private var nidaDay: PrayerDay
@@ -81,6 +92,7 @@ final class PrayerModel: ObservableObject {
          updater: UpdateManaging? = nil, discovery: ServerDiscovering? = nil,
          sounds: SoundCaching? = nil, player: SoundPlaying? = nil,
          location: LocationProviding? = nil, aladhan: AladhanClient? = nil,
+         soundCatalog: SoundCatalogLoading? = nil,
          clock: @escaping () -> Date = Date.init) {
         self.config = config
         self.source = source
@@ -97,6 +109,8 @@ final class PrayerModel: ObservableObject {
         self.player = player
         self.location = location
         self.aladhan = aladhan
+        self.soundCatalog = soundCatalog
+        self.standalone = preferences.standalone ?? StandaloneSettings()
         let calc = preferences.lastCalculation ?? .nidaDefault
         self.method = calc.method
         self.nidaHome = calc.home
@@ -113,6 +127,11 @@ final class PrayerModel: ObservableObject {
         let stored = credentials.load()
         self.credential = stored
         self.signIn = stored.map(SignInMethod.init)
+        if settings.source == .standalone {
+            day = preferences.lastStandaloneDay ?? PrayerDay()
+            preAdhan = standalone.preAdhan
+            audio = standalone.audio
+        }
         start()
     }
 
@@ -165,7 +184,11 @@ final class PrayerModel: ObservableObject {
     func refresh() {
         guard !isRefreshing else { return }
         isRefreshing = true
-        if connection == .connected { source.refreshSettings() } else { connectIfConfigured() }
+        if isStandalone {
+            awayDay = nil
+            refreshAway()
+            loadCatalog()
+        } else if connection == .connected { source.refreshSettings() } else { connectIfConfigured() }
         Task {
             try? await Task.sleep(nanoseconds: 800_000_000)
             isRefreshing = false
@@ -323,6 +346,107 @@ final class PrayerModel: ObservableObject {
         if turnedOn { Task { await authorizeNotifications() } }
     }
 
+    // MARK: Without Home Assistant
+
+    var isStandalone: Bool { settings.source == .standalone }
+
+    /// True when the app still needs a Home Assistant connection before it can show anything.
+    var needsConnection: Bool { !isStandalone && connection == .notConfigured }
+
+    /// Name of the place the times are for: the picked place, the Mac's place, or the away place.
+    var timesPlaceName: String? {
+        if isStandalone { return standalone.manualPlace?.name ?? location?.placeName }
+        return away?.name
+    }
+
+    /// Switches between Nida in Home Assistant and running on its own.
+    func setSource(_ source: PrayerSource) {
+        guard source != settings.source else { return }
+        update { $0.source = source }
+        awayDay = nil
+        if source == .standalone {
+            self.source.disconnect()
+            connection = .notConfigured
+            preAdhan = standalone.preAdhan
+            audio = standalone.audio
+            loadCatalog()
+            location?.requestPermission()
+        } else {
+            preAdhan = preferences.lastPreAdhan ?? .nidaDefault
+            audio = preferences.lastAudio ?? .nidaDefault
+            connectIfConfigured()
+        }
+        setAway(nil)
+        refreshAway()
+        scheduleNotifications(force: true)
+    }
+
+    /// Changes the settings for running without Home Assistant and applies them at once.
+    func updateStandalone(_ change: (inout StandaloneSettings) -> Void) {
+        var next = standalone
+        change(&next)
+        guard next != standalone else { return }
+        let placeChanged = next.method != standalone.method || next.manualPlace != standalone.manualPlace
+        standalone = next
+        preferences.standalone = next
+        guard isStandalone else { return }
+        preAdhan = next.preAdhan
+        audio = next.audio
+        if placeChanged { awayDay = nil; refreshAway() }
+        fetchStandaloneSounds()
+        scheduleNotifications(force: true)
+    }
+
+    func searchPlaces(_ query: String) async -> [NamedPlace] {
+        await location?.search(query) ?? []
+    }
+
+    /// Loads the Nida sound library once, then makes sure the chosen sounds are on this Mac.
+    func loadCatalog() {
+        guard let soundCatalog, catalogTask == nil else { return }
+        if !catalog.isEmpty { fetchStandaloneSounds(); return }
+        catalogFailed = false
+        catalogTask = Task { [weak self] in
+            let result = try? await soundCatalog.load()
+            guard let self else { return }
+            self.catalogTask = nil
+            if let result {
+                self.catalog = result
+                self.fetchStandaloneSounds()
+            } else {
+                self.catalogFailed = true
+            }
+        }
+    }
+
+    func catalogSounds(for category: NidaAudioSettings.Category) -> [CatalogSound] {
+        let kind = CatalogSound.kind(for: category)
+        return catalog.filter { $0.kind == kind }
+    }
+
+    /// The label of the chosen sound, from the library or, before it loaded, from its id.
+    func soundLabel(_ category: NidaAudioSettings.Category) -> String {
+        guard let id = standalone.soundId(category) else { return "–" }
+        return catalog.first { $0.id == id }?.label ?? id
+    }
+
+    private func fetchStandaloneSounds() {
+        guard let sounds, isStandalone else { return }
+        let wanted = NidaAudioSettings.Category.allCases.compactMap { c in
+            standalone.soundId(c).flatMap { id in catalog.first { $0.id == id } }
+        }
+        for sound in wanted where !downloading.contains(sound.id) {
+            guard sounds.localURL(for: SoundLibrary.catalogFile(sound.id)) == nil else { continue }
+            downloading.insert(sound.id)
+            failedDownloads.remove(sound.id)
+            Task { [weak self] in
+                let ok = await sounds.fetch(sound)
+                self?.downloading.remove(sound.id)
+                if !ok { self?.failedDownloads.insert(sound.id) }
+            }
+        }
+    }
+
     // MARK: Lifecycle
 
     private func start() {
@@ -358,6 +482,7 @@ final class PrayerModel: ObservableObject {
         }
         scheduleNotifications(force: true)
         connectIfConfigured()
+        if isStandalone { loadCatalog() }
     }
 
     /// Ticks on every whole second of the system clock. Each tick schedules the next one from the
@@ -407,6 +532,10 @@ final class PrayerModel: ObservableObject {
     private func refreshAway() {
         lastAwayCheck = now
         locationStatus = location?.status ?? .denied
+        if isStandalone {
+            refreshStandalone()
+            return
+        }
         guard let here = location?.current, let home else {
             setAway(nil)
             return
@@ -431,6 +560,26 @@ final class PrayerModel: ObservableObject {
         }
     }
 
+    /// Without Home Assistant: Aladhan's times for the picked place or the Mac's place, fetched once
+    /// per day and place (again after moving 5 km).
+    private func refreshStandalone() {
+        if away != nil { away = nil }
+        guard let here = standalone.manualPlace?.coordinate ?? location?.current else { return }
+        let today = Self.dayKey(now)
+        if let cached = awayDay, cached.date == today, cached.place.distanceKm(to: here) < 5 { return }
+        guard awayFetch == nil, let aladhan else { return }
+        let method = standalone.method
+        awayFetch = Task { [weak self] in
+            let result = try? await aladhan.day(for: Date(), at: here, method: method)
+            guard let self else { return }
+            self.awayFetch = nil
+            guard let result, self.isStandalone else { return }
+            self.awayDay = (result, here, today)
+            self.preferences.lastStandaloneDay = result
+            self.useDay()
+        }
+    }
+
     private func setAway(_ next: AwayPlace?) {
         if next == nil { awayDay = nil }
         if next != away { away = next }
@@ -439,7 +588,12 @@ final class PrayerModel: ObservableObject {
 
     /// Switches to the right day and replans notifications when it changed.
     private func useDay() {
-        let next = (away != nil ? awayDay?.day : nil) ?? nidaDay
+        let next: PrayerDay
+        if isStandalone {
+            next = awayDay?.day ?? preferences.lastStandaloneDay ?? PrayerDay()
+        } else {
+            next = (away != nil ? awayDay?.day : nil) ?? nidaDay
+        }
         guard next != day else { return }
         day = next
         scheduleNotifications(force: true)
@@ -455,6 +609,7 @@ final class PrayerModel: ObservableObject {
     /// Whether the Mac plays the sounds itself right now. In "away" mode only over Nabu Casa or
     /// the external address: at home Home Assistant plays them on its own speakers.
     var playsSoundsHere: Bool {
+        if isStandalone { return standalone.playSounds }
         switch settings.playbackMode {
         case .off: return false
         case .always: return true
@@ -498,6 +653,10 @@ final class PrayerModel: ObservableObject {
     }
 
     private func connectIfConfigured(seed: (token: String, expires: Date)? = nil) {
+        guard !isStandalone else {
+            connection = .notConfigured
+            return
+        }
         guard let server, let credential else {
             connection = .notConfigured
             return
@@ -507,6 +666,8 @@ final class PrayerModel: ObservableObject {
     }
 
     private func handle(_ event: NidaEvent) {
+        // Without Home Assistant nothing from Nida applies; a late event is ignored.
+        if isStandalone { return }
         switch event {
         case .state(let state):
             connection = state

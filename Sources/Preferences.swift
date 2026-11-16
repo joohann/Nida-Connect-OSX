@@ -2,6 +2,8 @@ import Foundation
 
 /// All user settings, as one value object.
 struct AppSettings: Equatable {
+    /// Nida in Home Assistant, or the app on its own with Aladhan and the Nida sound library.
+    var source: PrayerSource = .homeAssistant
     // Menu bar
     var showIcon = false
     var showPrayerName = false
@@ -45,6 +47,10 @@ protocol PreferencesStoring: AnyObject {
     var notifiedUpdateVersion: String? { get set }
     /// True once the first-launch setup was finished or closed.
     var setupDone: Bool { get set }
+    /// Settings for running without Home Assistant.
+    var standalone: StandaloneSettings? { get set }
+    /// The last prayer day calculated without Home Assistant, for offline starts.
+    var lastStandaloneDay: PrayerDay? { get set }
 }
 
 final class UserDefaultsPreferences: PreferencesStoring {
@@ -85,6 +91,7 @@ final class UserDefaultsPreferences: PreferencesStoring {
         var s = AppSettings()
         for f in Self.flags { s[keyPath: f.path] = defaults.bool(forKey: f.key) }
         s.playbackMode = defaults.string(forKey: "playbackMode").flatMap(PlaybackMode.init) ?? .away
+        s.source = defaults.string(forKey: "source").flatMap(PrayerSource.init) ?? .homeAssistant
         let minutes = defaults.integer(forKey: "prayerSignalMinutes")
         s.prayerSignalMinutes = AppSettings.prayerSignalChoices.contains(minutes) ? minutes : s.prayerSignalMinutes
         return s
@@ -93,6 +100,7 @@ final class UserDefaultsPreferences: PreferencesStoring {
     func save(_ s: AppSettings) {
         for f in Self.flags { defaults.set(s[keyPath: f.path], forKey: f.key) }
         defaults.set(s.playbackMode.rawValue, forKey: "playbackMode")
+        defaults.set(s.source.rawValue, forKey: "source")
         defaults.set(s.prayerSignalMinutes, forKey: "prayerSignalMinutes")
     }
 
@@ -124,6 +132,16 @@ final class UserDefaultsPreferences: PreferencesStoring {
     var lastPreAdhan: PreAdhanSettings? {
         get { decode(Key.lastPreAdhan) }
         set { encode(newValue, Key.lastPreAdhan) }
+    }
+
+    var standalone: StandaloneSettings? {
+        get { decode("standalone") }
+        set { encode(newValue, "standalone") }
+    }
+
+    var lastStandaloneDay: PrayerDay? {
+        get { decode("lastStandaloneDay") }
+        set { encode(newValue, "lastStandaloneDay") }
     }
 
     var setupDone: Bool {

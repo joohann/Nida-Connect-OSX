@@ -47,6 +47,7 @@ struct MenuBarLabel: View {
 enum MenuBarRenderer {
     /// Nida's gold, with dark text on it, as in the app icon.
     static let gold = NSColor(srgbRed: 0xf8 / 255, green: 0xcb / 255, blue: 0x5b / 255, alpha: 1)
+    static var goldColor: Color { Color(nsColor: gold) }
     static let goldInk = NSColor(srgbRed: 0x3a / 255, green: 0x2a / 255, blue: 0x05 / 255, alpha: 1)
 
     /// A gold rounded label with the prayer's name. `dimmed` draws it lighter, for the pulse; the

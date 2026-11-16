@@ -1,10 +1,11 @@
 import SwiftUI
 
-/// First-launch setup in five steps: welcome, find and sign in to Home Assistant, menu bar,
-/// notifications and sound, done. Display only; every change goes through PrayerModel.
+/// First-launch setup: welcome, where the times come from, Home Assistant (or place and method
+/// without it), menu bar, notifications, away or sound, done. Display only; every change goes
+/// through PrayerModel.
 struct SetupView: View {
     enum Step: Int, CaseIterable {
-        case welcome, connect, menuBar, alerts, away, done
+        case welcome, source, connect, menuBar, alerts, away, done
     }
 
     @ObservedObject var model: PrayerModel
@@ -18,6 +19,7 @@ struct SetupView: View {
             Group {
                 switch step {
                 case .welcome: welcome
+                case .source: sourceStep
                 case .connect: connect
                 case .menuBar: menuBar
                 case .alerts: alerts
@@ -48,7 +50,55 @@ struct SetupView: View {
         .padding(.top, 30)
     }
 
+    /// Home Assistant with Nida, or the app on its own.
+    private var sourceStep: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            title("setup.source.title", "setup.source.body")
+            ForEach(PrayerSource.allCases, id: \.self) { s in
+                let on = model.settings.source == s
+                Button { model.setSource(s) } label: {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: s == .homeAssistant ? "house.fill" : "mappin.and.ellipse")
+                            .font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
+                            .frame(width: 28, height: 28)
+                            .background(RoundedRectangle(cornerRadius: 7).fill(s == .homeAssistant ? Color.blue : Color.green))
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(l.t("source.\(s.rawValue)")).font(.headline)
+                            Text(l.t("source.\(s.rawValue).body")).font(.callout).foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                    .background(RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.05)))
+                    .overlay(RoundedRectangle(cornerRadius: 10)
+                        .stroke(on ? MenuBarRenderer.goldColor : Color.primary.opacity(0.12), lineWidth: on ? 2 : 1))
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(on ? .isSelected : [])
+            }
+        }
+    }
+
     private var connect: some View {
+        Group {
+            if model.isStandalone { placeStep } else { haStep }
+        }
+    }
+
+    /// Without Home Assistant: place and calculation method.
+    private var placeStep: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            title("setup.place.title", "setup.place.body")
+            StandaloneTimesSettings(model: model, l: l)
+                .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.05)))
+        }
+        .onAppear { model.requestLocationPermission() }
+    }
+
+    private var haStep: some View {
         VStack(alignment: .leading, spacing: 10) {
             title("setup.connect.title", "setup.connect.body")
             ConnectionForm(model: model, l: l)
@@ -115,7 +165,22 @@ struct SetupView: View {
     }
 
     /// Away from home: location for the right prayer times, and the adhan on the Mac.
+    /// Without Home Assistant: the sounds from the Nida library.
     private var awayStep: some View {
+        Group {
+            if model.isStandalone { soundStep } else { haAwayStep }
+        }
+    }
+
+    private var soundStep: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            title("setup.sound.title", "setup.sound.body")
+            StandaloneSoundSettings(model: model, l: l)
+                .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.05)))
+        }
+    }
+
+    private var haAwayStep: some View {
         VStack(alignment: .leading, spacing: 10) {
             title("setup.away.title", "setup.away.body")
             AwaySettings(model: model, l: l)
@@ -152,13 +217,13 @@ struct SetupView: View {
                     Button(l.t("setup.back")) { go(-1) }
                 }
                 Spacer()
-                if step == .connect && model.signIn == nil {
+                if step == .connect && model.signIn == nil && !model.isStandalone {
                     Button(l.t("setup.later")) { go(1) }.buttonStyle(.link)
                 }
                 Button(primaryTitle, action: primaryAction)
                     .keyboardShortcut(.defaultAction)
                     .controlSize(.large)
-                    .disabled(step == .connect && model.signIn == nil)
+                    .disabled(step == .connect && model.signIn == nil && !model.isStandalone)
             }
             HStack(spacing: 6) {
                 ForEach(Step.allCases, id: \.self) { s in

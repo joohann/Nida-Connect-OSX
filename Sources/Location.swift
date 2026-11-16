@@ -56,6 +56,8 @@ protocol LocationProviding: AnyObject {
     var onChange: (() -> Void)? { get set }
     func requestPermission()
     func start()
+    /// Places matching a name, such as "Utrecht", for picking a place by hand.
+    func search(_ query: String) async -> [NamedPlace]
 }
 
 enum LocationStatus: Equatable {
@@ -95,6 +97,18 @@ final class CoreLocationProvider: NSObject, LocationProviding, CLLocationManager
         guard status == .authorized else { return }
         manager.startMonitoringSignificantLocationChanges()
         manager.requestLocation()
+    }
+
+    func search(_ query: String) async -> [NamedPlace] {
+        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard q.count >= 2 else { return [] }
+        let marks = (try? await CLGeocoder().geocodeAddressString(q)) ?? []
+        return marks.compactMap { m in
+            guard let c = m.location?.coordinate else { return nil }
+            let parts = [m.locality ?? m.name, m.country].compactMap { $0 }
+            return NamedPlace(name: parts.joined(separator: ", "),
+                              coordinate: Coordinate(latitude: c.latitude, longitude: c.longitude))
+        }
     }
 
     nonisolated private static func map(_ s: CLAuthorizationStatus) -> LocationStatus {

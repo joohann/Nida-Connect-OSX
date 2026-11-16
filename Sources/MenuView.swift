@@ -9,7 +9,7 @@ struct MenuView: View {
 
     var body: some View {
         Group {
-            if showsSettings || model.connection == .notConfigured {
+            if showsSettings || model.needsConnection {
                 SettingsView(model: model, l: l, onDone: flip)
             } else {
                 PrayerFront(model: model, l: l, onSettings: flip)
@@ -71,8 +71,10 @@ struct PrayerFront: View {
             } else {
                 Text(l.t("prayer.waiting")).font(.callout).foregroundStyle(.secondary)
             }
-            Divider()
-            connectionRow
+            if !model.isStandalone {
+                Divider()
+                connectionRow
+            }
             if let version = model.availableUpdate {
                 Divider()
                 HStack {
@@ -106,8 +108,8 @@ struct PrayerFront: View {
                 } else {
                     Text(model.config.appName).font(.headline)
                 }
-                if let away = model.away {
-                    Label(l.t("location.timesFor", away.name ?? l.t("location.here")), systemImage: "location.fill")
+                if model.isStandalone || model.away != nil {
+                    Label(l.t("location.timesFor", model.timesPlaceName ?? l.t("location.here")), systemImage: "location.fill")
                         .font(.caption).foregroundStyle(.blue)
                 }
                 if let hijri = model.day.hijri, let text = Formatters.hijri(hijri, locale: l.locale) {

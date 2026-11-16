@@ -21,6 +21,15 @@ struct NidaAudioSettings: Equatable, Codable {
 
     static let nidaDefault = NidaAudioSettings(nidaOptions: [:])
 
+    init(adhanDisabled: Set<Prayer>, preAdhanAudio: Bool, sounds: [Category: String], volumes: [Category: Int]) {
+        self.adhanDisabled = adhanDisabled
+        self.preAdhanAudio = preAdhanAudio
+        self.sounds = sounds
+        self.volumes = volumes
+        guestModeEnabled = false
+        guestModeUntil = nil
+    }
+
     init(nidaOptions o: [String: Any]) {
         adhanDisabled = Set(Prayer.allCases.filter { (o["enabled_\($0.rawValue)"] as? Bool) == false })
         preAdhanAudio = (o["pre_adhan_audio_enabled"] as? Bool) ?? true
@@ -109,11 +118,18 @@ struct SoundPlanner {
 protocol SoundCaching {
     func localURL(for file: String) -> URL?
     func fetch(_ files: [String], from server: ServerAddress) async
+    /// A sound from the Nida library on the web, checked against its SHA-256.
+    func fetch(_ sound: CatalogSound) async -> Bool
 }
 
 struct SoundLibrary: SoundCaching {
     let folder: URL
     let session: URLSession
+
+    init(folder: URL, session: URLSession = URLSession(configuration: .ephemeral)) {
+        self.folder = folder
+        self.session = session
+    }
 
     init(bundleId: String, session: URLSession = URLSession(configuration: .ephemeral)) {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
