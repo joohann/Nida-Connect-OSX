@@ -52,6 +52,11 @@ rm -rf build/AppIcon.iconset
 build/icon-generator Icon/AppIcon-source.png build/AppIcon.iconset build/AppIcon-1024.png
 iconutil -c icns build/AppIcon.iconset -o "$APP/Contents/Resources/AppIcon.icns"
 
+# Menu bar logo: the mosque from Nida's icon as a one-colour template image, 1x and 2x in one TIFF.
+swiftc -swift-version 5 Icon/MenuBarLogo/main.swift -o build/menubar-logo
+build/menubar-logo Icon/AppIcon-source.png build/MenuBarLogo.png build/MenuBarLogo@2x.png
+tiffutil -cathidpicheck build/MenuBarLogo.png build/MenuBarLogo@2x.png -out "$APP/Contents/Resources/MenuBarLogo.tiff" 2>/dev/null
+
 cp config.json "$APP/Contents/Resources/"
 cp -R Resources/*.lproj Resources/*.html "$APP/Contents/Resources/"
 LANGS=$(ls -d Resources/*.lproj | xargs -n1 basename | sed 's/\.lproj//' | sed 's/.*/<string>&<\/string>/' | tr -d '\n')

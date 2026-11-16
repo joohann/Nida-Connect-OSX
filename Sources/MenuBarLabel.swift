@@ -10,13 +10,16 @@ struct MenuBarLabel: View {
     let l: Localizing
 
     var body: some View {
-        if let prayer = model.prayerSignal {
+        if model.settings.iconOnly && model.prayerSignal == nil {
+            Image(nsImage: MenuBarRenderer.image(symbol: symbol, text: "", color: color, useLogo: true))
+                .accessibilityLabel(text)
+        } else if let prayer = model.prayerSignal {
             let name = l.t(prayer.localizationKey)
-            Image(nsImage: MenuBarRenderer.badge(symbol: model.settings.showIcon ? symbol : nil,
+            Image(nsImage: MenuBarRenderer.badge(symbol: model.settings.showsMoon ? symbol : nil,
                                                  text: name, dimmed: !model.colonVisible))
                 .accessibilityLabel(name)
         } else {
-            Image(nsImage: MenuBarRenderer.image(symbol: model.settings.showIcon ? symbol : nil,
+            Image(nsImage: MenuBarRenderer.image(symbol: model.settings.showsMoon ? symbol : nil,
                                                  text: text, color: color, hideColons: !model.colonVisible))
                 .accessibilityLabel(text)
         }
@@ -30,6 +33,7 @@ struct MenuBarLabel: View {
         guard let next = model.upcoming else {
             return model.settings.showIcon ? "" : l.t("bar.noData")
         }
+        if model.settings.prayerTimeOnly { return Formatters.time.string(from: next.date) }
         let time = Formatters.menuBarCountdown(next.remaining(at: model.now), showSeconds: model.settings.showSeconds,
                                                 secondsAlways: model.settings.showSecondsAlways)
         return model.settings.showPrayerName ? "\(l.t(next.prayer.localizationKey)) \(time)" : time
@@ -90,8 +94,14 @@ enum MenuBarRenderer {
         return image
     }
 
+    /// Nida's mosque as a template image, made by the build from the app icon.
+    static let logo: NSImage? = Bundle.main.url(forResource: "MenuBarLogo", withExtension: "tiff")
+        .flatMap(NSImage.init(contentsOf:))
+
     /// `hideColons` draws the colons transparent, so the width stays the same while they blink.
-    static func image(symbol: String?, text: String, color: NSColor?, hideColons: Bool = false) -> NSImage {
+    /// `useLogo` draws Nida's logo instead of the symbol.
+    static func image(symbol: String?, text: String, color: NSColor?, hideColons: Bool = false,
+                      useLogo: Bool = false) -> NSImage {
         let font = NSFont.monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
         let ink = color ?? .black
         let attributed = NSMutableAttributedString(string: text, attributes: [.font: font, .foregroundColor: ink])
@@ -107,7 +117,9 @@ enum MenuBarRenderer {
         let textSize = text.isEmpty ? .zero : attributed.size()
 
         var icon: NSImage?
-        if let symbol {
+        if useLogo, let logo {
+            icon = logo
+        } else if let symbol {
             let config = NSImage.SymbolConfiguration(pointSize: 13, weight: .regular)
             icon = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)?
                 .withSymbolConfiguration(config)

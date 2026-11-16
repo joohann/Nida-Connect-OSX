@@ -30,7 +30,7 @@ struct StandaloneSettings: Equatable, Codable {
     var sounds: [String: String] = [
         NidaAudioSettings.Category.adhan.rawValue: "adhan_day_ahmed_saeed_al_omrany",
         NidaAudioSettings.Category.fajrAdhan.rawValue: "adhan_fajr_ahmed_saeed_al_omrany",
-        NidaAudioSettings.Category.preAdhanJingle.rawValue: "jingle_announcement_1",
+        NidaAudioSettings.Category.preAdhanJingle.rawValue: StandaloneSettings.languageJingle,
     ]
     /// 0…100 per category.
     var volumes: [String: Int] = [
@@ -40,8 +40,20 @@ struct StandaloneSettings: Equatable, Codable {
     ]
 
     static let minuteRange = 0...60
+    /// Jingle choice that follows the app's language: the voiced Nida jingle (`jingle_nida_<lang>`),
+    /// which says the announcement itself. Languages without one get English.
+    static let languageJingle = "jingle_nida"
+    static let voicedLanguages: Set<String> = ["ar", "de", "en", "fa", "fr", "id", "ms", "nl", "tr", "ur"]
 
+    /// The choice as stored, which can be `languageJingle`.
     func soundId(_ c: NidaAudioSettings.Category) -> String? { sounds[c.rawValue] }
+
+    /// The library sound that actually plays, for the app's language.
+    func soundId(_ c: NidaAudioSettings.Category, language: String) -> String? {
+        guard let id = soundId(c) else { return nil }
+        guard id == Self.languageJingle else { return id }
+        return "\(Self.languageJingle)_\(Self.voicedLanguages.contains(language) ? language : "en")"
+    }
     func volume(_ c: NidaAudioSettings.Category) -> Int { volumes[c.rawValue] ?? 20 }
 
     var preAdhan: PreAdhanSettings {
@@ -50,11 +62,11 @@ struct StandaloneSettings: Equatable, Codable {
     }
 
     /// The same shape as Nida's sound settings, so planning and playing work unchanged.
-    var audio: NidaAudioSettings {
+    func audio(language: String) -> NidaAudioSettings {
         var files: [NidaAudioSettings.Category: String] = [:]
         var levels: [NidaAudioSettings.Category: Int] = [:]
         for c in NidaAudioSettings.Category.allCases {
-            if let id = soundId(c) { files[c] = SoundLibrary.catalogFile(id) }
+            if let id = soundId(c, language: language) { files[c] = SoundLibrary.catalogFile(id) }
             levels[c] = volume(c)
         }
         return NidaAudioSettings(adhanDisabled: [], preAdhanAudio: true, sounds: files, volumes: levels)

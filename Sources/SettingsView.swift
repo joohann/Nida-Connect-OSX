@@ -7,6 +7,8 @@ struct SettingsView: View {
     let onDone: () -> Void
     @Environment(\.openWindow) private var openWindow
 
+    @State var advanced = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
@@ -17,76 +19,73 @@ struct SettingsView: View {
                 }
             }
             group("settings.sourceGroup") {
-                SourceRow(model: model, l: l)
-            }
-            if model.isStandalone {
-                group("settings.prayerTimes") {
-                    StandaloneTimesSettings(model: model, l: l)
-                }
-            } else {
-                group("settings.homeAssistant") {
+                sourceRow
+                if model.needsConnection {
+                    SettingsDivider()
                     ConnectionForm(model: model, l: l)
                 }
             }
             group("settings.menuBar") {
-                row("moon.stars.fill", .indigo, "settings.showIcon", \.showIcon)
-                SettingsDivider()
-                row("textformat", .indigo, "settings.showPrayerName", \.showPrayerName)
-                SettingsDivider()
-                row("clock", .indigo, "settings.showSeconds", \.showSeconds,
-                    enabled: !model.settings.showSecondsAlways)
-                SettingsDivider()
-                row("clock.badge", .indigo, "settings.showSecondsAlways", \.showSecondsAlways)
-                SettingsDivider()
-                row("circle.dotted", .indigo, "settings.blinkColon", \.blinkColon)
-                SettingsDivider()
-                SettingsRow(symbol: "paintpalette", tint: .orange, title: l.t("settings.colorPreAdhan")) {
-                    HStack(spacing: 3) {
-                        Circle().fill(Color.orange).frame(width: 7, height: 7)
-                        Circle().fill(Color.red).frame(width: 7, height: 7)
-                    }
-                    .opacity(model.settings.colorPreAdhan ? 1 : 0.3)
-                    SettingsSwitch(isOn: binding(\.colorPreAdhan))
-                }
-                .help(l.t("settings.colorPreAdhanHelp", model.preAdhan.firstMinutes, model.preAdhan.secondMinutes))
-                SettingsDivider()
-                SettingsRow(symbol: "sparkles", tint: .yellow, title: l.t("settings.prayerSignal")) {
+                SettingsRow(symbol: "menubar.rectangle", tint: .indigo, title: l.t("settings.style")) {
                     Menu {
-                        ForEach(AppSettings.prayerSignalChoices, id: \.self) { minutes in
-                            Button(l.t("settings.minutes", minutes)) {
-                                model.update { $0.prayerSignalMinutes = minutes }
-                            }
+                        ForEach(MenuBarStyle.allCases, id: \.self) { style in
+                            Button(l.t("style.\(style.rawValue)")) { model.update { $0.menuBarStyle = style } }
                         }
                     } label: {
-                        Text(l.t("settings.minutes", model.settings.prayerSignalMinutes))
+                        Text(l.t("style.\(model.settings.menuBarStyle.rawValue)"))
                     }
                     .menuStyle(.borderlessButton)
                     .fixedSize()
                     .controlSize(.small)
-                    .disabled(!model.settings.prayerSignal)
-                    .opacity(model.settings.prayerSignal ? 1 : 0.4)
-                    SettingsSwitch(isOn: binding(\.prayerSignal))
                 }
-                .help(l.t("settings.prayerSignalHelp"))
-            }
-            group("settings.notifications") {
-                row("bell", .orange, "settings.notifyPreAdhan1", \.notifyPreAdhan1,
-                    detail: model.preAdhan.firstMinutes > 0 ? l.t("settings.minutes", model.preAdhan.firstMinutes)
-                                                              : l.t(model.isStandalone ? "state.off" : "settings.offInNida"))
                 SettingsDivider()
-                row("bell.badge", .red, "settings.notifyPreAdhan2", \.notifyPreAdhan2,
-                    detail: model.preAdhan.secondEnabled ? l.t("settings.minutes", model.preAdhan.secondMinutes)
-                                                         : l.t(model.isStandalone ? "state.off" : "settings.offInNida"))
-                SettingsDivider()
-                row("moon.stars", .green, "settings.notifyAtPrayer", \.notifyAtPrayer)
-            }
-            if model.isStandalone {
-                group("settings.sound") {
-                    StandaloneSoundSettings(model: model, l: l)
+                SettingsRow(symbol: "paintpalette", tint: .orange, title: l.t("settings.alerts")) {
+                    Text(alertsSummary).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                    changeButton(.alerts)
                 }
-            } else {
-                group("settings.away") {
-                    AwaySettings(model: model, l: l)
+            }
+            group("settings.soundAndNotifications") {
+                SettingsRow(symbol: "bell", tint: .orange, title: l.t("settings.notifications")) {
+                    Text(preAdhanSummary).font(.caption).foregroundStyle(.secondary).monospacedDigit().fixedSize()
+                    SettingsSwitch(isOn: Binding(get: { model.settings.notifiesPrayers },
+                                                 set: { on in model.update { $0.notifiesPrayers = on } }))
+                }
+                SettingsDivider()
+                if model.isStandalone {
+                    SettingsRow(symbol: "speaker.wave.2", tint: .teal, title: l.t("settings.playOnMac")) {
+                        Button(l.t(model.playing == nil ? "action.test" : "action.stop"), action: model.testSound)
+                            .controlSize(.mini).fixedSize()
+                        SettingsSwitch(isOn: Binding(get: { model.standalone.playSounds },
+                                                     set: { on in model.updateStandalone { $0.playSounds = on } }))
+                    }
+                    SettingsDivider()
+                    SettingsRow(symbol: "speaker.wave.1", tint: .teal, title: l.t("settings.volume")) {
+                        Slider(value: Binding(get: { Double(model.standalone.volume(.adhan)) },
+                                              set: { v in model.updateStandalone {
+                                                  $0.volumes[NidaAudioSettings.Category.adhan.rawValue] = Int(v.rounded())
+                                              } }),
+                               in: 0...100, step: 5)
+                            .controlSize(.mini)
+                            .frame(width: 90)
+                            .accessibilityLabel(l.t("sound.volume", l.t("sound.adhan")))
+                        Text("\(model.standalone.volume(.adhan))%").font(.caption).monospacedDigit()
+                            .frame(width: 32, alignment: .trailing)
+                    }
+                    .disabled(!model.standalone.playSounds)
+                    .opacity(model.standalone.playSounds ? 1 : 0.5)
+                } else {
+                    SettingsRow(symbol: "speaker.wave.2", tint: .teal, title: l.t("settings.playback")) {
+                        Menu {
+                            ForEach([PlaybackMode.away, .always, .off], id: \.self) { mode in
+                                Button(l.t("playback.\(mode.rawValue)")) { model.update { $0.playbackMode = mode } }
+                            }
+                        } label: {
+                            Text(l.t("playback.\(model.settings.playbackMode.rawValue)"))
+                        }
+                        .menuStyle(.borderlessButton)
+                        .fixedSize()
+                        .controlSize(.small)
+                    }
                 }
             }
             if model.notificationsDenied && model.settings.wantsNotifications {
@@ -98,32 +97,163 @@ struct SettingsView: View {
                     SettingsSwitch(isOn: Binding(get: { model.launchAtLogin },
                                                  set: { _ in model.toggleLaunchAtLogin() }))
                 }
-                SettingsDivider()
-                SettingsRow(symbol: "wand.and.stars", tint: .purple, title: l.t("settings.runSetup")) {
-                    Button(l.t("action.open")) {
-                        openWindow(id: SetupLauncher.windowId)
-                        NSApp.activate(ignoringOtherApps: true)
-                    }
-                    .controlSize(.mini)
-                    .fixedSize()
-                }
                 if model.config.updatesEnabled {
                     SettingsDivider()
                     SettingsRow(symbol: "arrow.down.circle", tint: .blue, title: l.t("settings.checkForUpdates")) {
                         Button(l.t("action.checkNow"), action: model.checkForUpdates).controlSize(.mini).fixedSize()
                         SettingsSwitch(isOn: binding(\.checkForUpdates))
                     }
-                    SettingsDivider()
-                    row("sparkles", .blue, "settings.notifyUpdate", \.notifyUpdate,
-                        enabled: model.settings.checkForUpdates)
+                }
+                SettingsDivider()
+                SettingsRow(symbol: "wand.and.stars", tint: .purple, title: l.t("settings.runSetup")) {
+                    Button(l.t("action.open")) { openSetup(.welcome) }.controlSize(.mini).fixedSize()
                 }
             }
+            advancedSection
             HStack {
                 Text(l.t("settings.version", model.config.version)).font(.caption).foregroundStyle(.tertiary)
                 Spacer()
                 Button(l.t("action.quit", model.config.appName)) { NSApp.terminate(nil) }.controlSize(.small)
             }
             .padding(.top, 10)
+        }
+    }
+
+    // MARK: Parts
+
+    /// Where the times come from, in one line; Change opens that step of the setup.
+    private var sourceRow: some View {
+        VStack(spacing: 0) {
+            SettingsRow(symbol: model.isStandalone ? "mappin.and.ellipse" : "house",
+                        tint: model.isStandalone ? .green : .blue,
+                        title: l.t("source.\(model.settings.source.rawValue)")) {
+                Text(sourceDetail).font(.caption).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
+                if !model.needsConnection { changeButton(.connect) }
+            }
+            if model.isStandalone && model.standalone.manualPlace == nil && model.locationStatus != .authorized {
+                HStack(spacing: 6) {
+                    Text(l.t(model.locationStatus == .denied ? "place.denied" : "place.needsPermission"))
+                        .font(.caption2).foregroundStyle(.orange).fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 4)
+                    if model.locationStatus == .denied {
+                        Button(l.t("network.denied.open"), action: model.openLocationSettings).controlSize(.mini).fixedSize()
+                    } else {
+                        Button(l.t("action.allow"), action: model.requestLocationPermission).controlSize(.mini).fixedSize()
+                    }
+                }
+                .padding(.horizontal, 8).padding(.bottom, 6)
+            }
+        }
+    }
+
+    private var sourceDetail: String {
+        if model.isStandalone {
+            return model.standalone.manualPlace?.name ?? model.timesPlaceName ?? l.t("place.automatic")
+        }
+        if model.needsConnection { return "" }
+        return model.server?.display ?? ""
+    }
+
+    private var alertsSummary: String {
+        let s = model.settings
+        let on = [s.colorPreAdhan ? l.t("alert.color.short") : nil, s.prayerSignal ? l.t("alert.signal.short") : nil]
+            .compactMap { $0 }
+        return on.isEmpty ? l.t("state.off") : on.joined(separator: " · ")
+    }
+
+    private var preAdhanSummary: String {
+        let p = model.preAdhan
+        let minutes = [p.firstMinutes > 0 ? p.firstMinutes : nil, p.secondEnabled ? p.secondMinutes : nil].compactMap { $0 }
+        return minutes.isEmpty ? "" : l.t("settings.minutesList", minutes.map(String.init).joined(separator: " · "))
+    }
+
+    private func changeButton(_ step: SetupView.Step) -> some View {
+        Button(l.t("action.change")) { openSetup(step) }.controlSize(.mini).fixedSize()
+    }
+
+    private func openSetup(_ step: SetupView.Step) {
+        model.setupEntry = step.rawValue
+        openWindow(id: SetupLauncher.windowId)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    /// The fine-grained settings, folded away until you look for them.
+    private var advancedSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Button {
+                withAnimation(.easeInOut(duration: 0.15)) { advanced.toggle() }
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.right").font(.caption2.weight(.semibold))
+                        .rotationEffect(.degrees(advanced ? 90 : 0))
+                    Text(l.t("settings.advanced")).font(.caption)
+                    Spacer()
+                }
+                .foregroundStyle(.secondary)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .padding(.leading, 4)
+            .padding(.top, 12)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityValue(l.t(advanced ? "state.on" : "state.off"))
+            if advanced {
+                if model.isStandalone {
+                    group("settings.prayerTimes") {
+                        StandaloneTimesSettings(model: model, l: l, showsPlace: false)
+                    }
+                    group("settings.sound") {
+                        StandaloneSoundSettings(model: model, l: l, showsPlaySwitch: false)
+                    }
+                } else {
+                    group("settings.away") {
+                        AwaySettings(model: model, l: l, showsPlayback: false)
+                    }
+                }
+                group("settings.menuBar") {
+                    row("moon.stars.fill", .indigo, "settings.showIcon", \.showIcon, enabled: [.named, .precise].contains(model.settings.menuBarStyle))
+                    SettingsDivider()
+                    row("clock", .indigo, "settings.showSeconds", \.showSeconds,
+                        enabled: !model.settings.showSecondsAlways && !model.settings.iconOnly
+                                 && !model.settings.prayerTimeOnly)
+                    SettingsDivider()
+                    row("circle.dotted", .indigo, "settings.blinkColon", \.blinkColon, enabled: !model.settings.iconOnly)
+                    SettingsDivider()
+                    SettingsRow(symbol: "sparkles", tint: .yellow, title: l.t("settings.prayerSignal")) {
+                        Menu {
+                            ForEach(AppSettings.prayerSignalChoices, id: \.self) { minutes in
+                                Button(l.t("settings.minutes", minutes)) {
+                                    model.update { $0.prayerSignalMinutes = minutes }
+                                }
+                            }
+                        } label: {
+                            Text(l.t("settings.minutes", model.settings.prayerSignalMinutes))
+                        }
+                        .menuStyle(.borderlessButton)
+                        .fixedSize()
+                        .controlSize(.small)
+                        .disabled(!model.settings.prayerSignal)
+                        .opacity(model.settings.prayerSignal ? 1 : 0.4)
+                    }
+                    .help(l.t("settings.prayerSignalHelp"))
+                }
+                group("settings.notifications") {
+                    row("bell", .orange, "settings.notifyPreAdhan1", \.notifyPreAdhan1,
+                        detail: model.preAdhan.firstMinutes > 0 ? l.t("settings.minutes", model.preAdhan.firstMinutes)
+                                                                  : l.t(model.isStandalone ? "state.off" : "settings.offInNida"))
+                    SettingsDivider()
+                    row("bell.badge", .red, "settings.notifyPreAdhan2", \.notifyPreAdhan2,
+                        detail: model.preAdhan.secondEnabled ? l.t("settings.minutes", model.preAdhan.secondMinutes)
+                                                             : l.t(model.isStandalone ? "state.off" : "settings.offInNida"))
+                    SettingsDivider()
+                    row("moon.stars", .green, "settings.notifyAtPrayer", \.notifyAtPrayer)
+                    if model.config.updatesEnabled {
+                        SettingsDivider()
+                        row("sparkles", .blue, "settings.notifyUpdate", \.notifyUpdate,
+                            enabled: model.settings.checkForUpdates)
+                    }
+                }
+            }
         }
     }
 

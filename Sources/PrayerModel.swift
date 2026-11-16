@@ -41,6 +41,8 @@ final class PrayerModel: ObservableObject {
     @Published private(set) var discovered: [DiscoveredServer] = []
     /// Settings for running without Home Assistant.
     @Published private(set) var standalone: StandaloneSettings
+    /// The setup step to open at, set by a Change button in the settings; the setup takes it once.
+    @Published var setupEntry: Int?
     /// The Nida sound library, loaded when running without Home Assistant.
     @Published private(set) var catalog: [CatalogSound] = []
     @Published private(set) var catalogFailed = false
@@ -84,6 +86,8 @@ final class PrayerModel: ObservableObject {
     private var ticker: Timer?
     private var wake: AnyCancellable?
     private var settingsTask: Task<Void, Never>?
+    /// The app's language code, for the voiced Nida jingle.
+    private let language: String
 
     init(config: AppConfig, source: NidaSource, credentials: CredentialStoring,
          makeLogin: @escaping () -> LoopbackLogin, openURL: @escaping (URL) -> Void = { NSWorkspace.shared.open($0) },
@@ -92,7 +96,7 @@ final class PrayerModel: ObservableObject {
          updater: UpdateManaging? = nil, discovery: ServerDiscovering? = nil,
          sounds: SoundCaching? = nil, player: SoundPlaying? = nil,
          location: LocationProviding? = nil, aladhan: AladhanClient? = nil,
-         soundCatalog: SoundCatalogLoading? = nil,
+         soundCatalog: SoundCatalogLoading? = nil, language: String = "en",
          clock: @escaping () -> Date = Date.init) {
         self.config = config
         self.source = source
@@ -110,6 +114,7 @@ final class PrayerModel: ObservableObject {
         self.location = location
         self.aladhan = aladhan
         self.soundCatalog = soundCatalog
+        self.language = language
         self.standalone = preferences.standalone ?? StandaloneSettings()
         let calc = preferences.lastCalculation ?? .nidaDefault
         self.method = calc.method
@@ -130,7 +135,7 @@ final class PrayerModel: ObservableObject {
         if settings.source == .standalone {
             day = preferences.lastStandaloneDay ?? PrayerDay()
             preAdhan = standalone.preAdhan
-            audio = standalone.audio
+            audio = standalone.audio(language: language)
         }
         start()
     }
@@ -368,7 +373,7 @@ final class PrayerModel: ObservableObject {
             self.source.disconnect()
             connection = .notConfigured
             preAdhan = standalone.preAdhan
-            audio = standalone.audio
+            audio = standalone.audio(language: language)
             loadCatalog()
             location?.requestPermission()
         } else {
@@ -391,10 +396,20 @@ final class PrayerModel: ObservableObject {
         preferences.standalone = next
         guard isStandalone else { return }
         preAdhan = next.preAdhan
-        audio = next.audio
+        audio = next.audio(language: language)
         if placeChanged { awayDay = nil; refreshAway() }
         fetchStandaloneSounds()
         scheduleNotifications(force: true)
+    }
+
+    /// Picks the adhan voice; the Fajr adhan follows with the same reciter when the library has one.
+    func chooseVoice(_ sound: CatalogSound) {
+        let fajr = sound.id.replacingOccurrences(of: "adhan_day_", with: "adhan_fajr_")
+        let hasFajr = catalog.contains { $0.id == fajr && $0.kind == .fajr }
+        updateStandalone {
+            $0.sounds[NidaAudioSettings.Category.adhan.rawValue] = sound.id
+            if hasFajr { $0.sounds[NidaAudioSettings.Category.fajrAdhan.rawValue] = fajr }
+        }
     }
 
     func searchPlaces(_ query: String) async -> [NamedPlace] {
@@ -430,10 +445,15 @@ final class PrayerModel: ObservableObject {
         return catalog.first { $0.id == id }?.label ?? id
     }
 
+    /// The library sound that plays for a category, with the language jingle resolved.
+    func playingSoundId(_ category: NidaAudioSettings.Category) -> String? {
+        standalone.soundId(category, language: language)
+    }
+
     private func fetchStandaloneSounds() {
         guard let sounds, isStandalone else { return }
         let wanted = NidaAudioSettings.Category.allCases.compactMap { c in
-            standalone.soundId(c).flatMap { id in catalog.first { $0.id == id } }
+            playingSoundId(c).flatMap { id in catalog.first { $0.id == id } }
         }
         for sound in wanted where !downloading.contains(sound.id) {
             guard sounds.localURL(for: SoundLibrary.catalogFile(sound.id)) == nil else { continue }

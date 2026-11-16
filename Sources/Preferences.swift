@@ -6,6 +6,10 @@ struct AppSettings: Equatable {
     var source: PrayerSource = .homeAssistant
     // Menu bar
     var showIcon = false
+    /// Only Nida's logo in the menu bar, no countdown.
+    var iconOnly = false
+    /// The clock time of the next prayer instead of the countdown.
+    var prayerTimeOnly = false
     var showPrayerName = false
     var showSeconds = true
     var showSecondsAlways = false
@@ -58,6 +62,8 @@ final class UserDefaultsPreferences: PreferencesStoring {
 
     private static let flags: [Flag] = [
         ("showIcon", \.showIcon),
+        ("iconOnly", \.iconOnly),
+        ("prayerTimeOnly", \.prayerTimeOnly),
         ("showPrayerName", \.showPrayerName),
         ("showSeconds", \.showSeconds),
         ("showSecondsAlways", \.showSecondsAlways),

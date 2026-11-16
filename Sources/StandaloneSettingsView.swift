@@ -26,6 +26,8 @@ struct SourceRow: View {
 struct StandaloneTimesSettings: View {
     @ObservedObject var model: PrayerModel
     let l: Localizing
+    /// The settings show the place in their Source row, so they leave it out here.
+    var showsPlace = true
     @State private var picking = false
     @State private var query = ""
     @State private var results: [NamedPlace] = []
@@ -33,27 +35,10 @@ struct StandaloneTimesSettings: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            SettingsRow(symbol: "location", tint: .blue, title: l.t("settings.location")) {
-                Menu {
-                    Button(l.t("place.automatic")) {
-                        picking = false
-                        model.updateStandalone { $0.manualPlace = nil }
-                        model.requestLocationPermission()
-                    }
-                    Button(l.t("place.choose")) { picking = true }
-                } label: {
-                    Text(placeText).lineLimit(1)
-                }
-                .menuStyle(.borderlessButton)
-                .fixedSize()
-                .controlSize(.small)
+            if showsPlace {
+                placeRows
+                SettingsDivider()
             }
-            if picking {
-                placePicker
-            } else if model.standalone.manualPlace == nil && model.locationStatus != .authorized {
-                locationNotice
-            }
-            SettingsDivider()
             SettingsRow(symbol: "function", tint: .purple, title: l.t("settings.method")) {
                 Menu {
                     ForEach(CalculationMethods.ids, id: \.self) { id in
@@ -107,6 +92,30 @@ struct StandaloneTimesSettings: View {
                     }
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var placeRows: some View {
+        SettingsRow(symbol: "location", tint: .blue, title: l.t("settings.location")) {
+            Menu {
+                Button(l.t("place.automatic")) {
+                    picking = false
+                    model.updateStandalone { $0.manualPlace = nil }
+                    model.requestLocationPermission()
+                }
+                Button(l.t("place.choose")) { picking = true }
+            } label: {
+                Text(placeText).lineLimit(1)
+            }
+            .menuStyle(.borderlessButton)
+            .fixedSize()
+            .controlSize(.small)
+        }
+        if picking {
+            placePicker
+        } else if model.standalone.manualPlace == nil && model.locationStatus != .authorized {
+            locationNotice
         }
     }
 
@@ -187,15 +196,19 @@ struct MinuteStepper: View {
 struct StandaloneSoundSettings: View {
     @ObservedObject var model: PrayerModel
     let l: Localizing
+    /// The settings show the play switch in their main group, so they leave it out here.
+    var showsPlaySwitch = true
 
     var body: some View {
         VStack(spacing: 0) {
-            SettingsRow(symbol: "speaker.wave.2", tint: .teal, title: l.t("settings.playOnMac")) {
-                SettingsSwitch(isOn: Binding(get: { model.standalone.playSounds },
-                                             set: { on in model.updateStandalone { $0.playSounds = on } }))
+            if showsPlaySwitch {
+                SettingsRow(symbol: "speaker.wave.2", tint: .teal, title: l.t("settings.playOnMac")) {
+                    SettingsSwitch(isOn: Binding(get: { model.standalone.playSounds },
+                                                 set: { on in model.updateStandalone { $0.playSounds = on } }))
+                }
             }
             ForEach([NidaAudioSettings.Category.adhan, .fajrAdhan, .preAdhanJingle], id: \.self) { category in
-                SettingsDivider()
+                if showsPlaySwitch || category != .adhan { SettingsDivider() }
                 soundRow(category)
             }
             VStack(alignment: .leading, spacing: 4) {
@@ -220,7 +233,7 @@ struct StandaloneSoundSettings: View {
     }
 
     private func soundRow(_ c: NidaAudioSettings.Category) -> some View {
-        let id = model.standalone.soundId(c) ?? ""
+        let id = model.playingSoundId(c) ?? ""
         return VStack(spacing: 2) {
             SettingsRow(symbol: symbol(c), tint: .teal, title: l.t("sound.\(c.rawValue)")) {
                 if model.downloading.contains(id) {
@@ -233,11 +246,17 @@ struct StandaloneSoundSettings: View {
             }
             HStack(spacing: 6) {
                 Menu {
+                    if c == .preAdhanJingle {
+                        Button(l.t("sound.languageJingle")) {
+                            model.updateStandalone { $0.sounds[c.rawValue] = StandaloneSettings.languageJingle }
+                        }
+                        Divider()
+                    }
                     ForEach(model.catalogSounds(for: c)) { sound in
                         Button(sound.label) { model.updateStandalone { $0.sounds[c.rawValue] = sound.id } }
                     }
                 } label: {
-                    Text(model.soundLabel(c)).lineLimit(1).truncationMode(.tail)
+                    Text(soundLabel(c)).lineLimit(1).truncationMode(.tail)
                 }
                 .menuStyle(.borderlessButton)
                 .controlSize(.small)
@@ -254,6 +273,10 @@ struct StandaloneSoundSettings: View {
             .padding(.leading, 36).padding(.trailing, 8).padding(.bottom, 4)
         }
         .opacity(model.standalone.playSounds ? 1 : 0.5)
+    }
+
+    private func soundLabel(_ c: NidaAudioSettings.Category) -> String {
+        model.standalone.soundId(c) == StandaloneSettings.languageJingle ? l.t("sound.languageJingle") : model.soundLabel(c)
     }
 
     private func symbol(_ c: NidaAudioSettings.Category) -> String {

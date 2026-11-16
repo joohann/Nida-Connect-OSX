@@ -27,7 +27,8 @@ struct MenuBarApp: App {
                 player: AVSoundPlayer(),
                 location: CoreLocationProvider(),
                 aladhan: AladhanClient(baseURL: config.away.aladhanUrl),
-                soundCatalog: NidaSoundCatalog(baseURL: config.standalone.soundLibraryUrl)
+                soundCatalog: NidaSoundCatalog(baseURL: config.standalone.soundLibraryUrl),
+                language: localizer.locale.language.languageCode?.identifier ?? "en"
             )
             // Launch argument `-previewPrayerSignal <seconds>` shows the gold label at once, as a preview.
             let preview = UserDefaults.standard.double(forKey: "previewPrayerSignal")

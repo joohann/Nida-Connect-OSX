@@ -5,7 +5,7 @@ import SwiftUI
 /// through PrayerModel.
 struct SetupView: View {
     enum Step: Int, CaseIterable {
-        case welcome, source, connect, menuBar, alerts, away, done
+        case welcome, source, connect, menuBar, alerts, sound, done
     }
 
     @ObservedObject var model: PrayerModel
@@ -23,7 +23,7 @@ struct SetupView: View {
                 case .connect: connect
                 case .menuBar: menuBar
                 case .alerts: alerts
-                case .away: awayStep
+                case .sound: sound
                 case .done: done
                 }
             }
@@ -35,6 +35,8 @@ struct SetupView: View {
         .frame(width: 420, height: 560)
         .environment(\.layoutDirection, l.isRightToLeft ? .rightToLeft : .leftToRight)
         .onDisappear { model.finishSetup() }
+        .onAppear(perform: takeEntry)
+        .onChange(of: model.setupEntry) { _ in takeEntry() }
     }
 
     // MARK: Steps
@@ -114,48 +116,56 @@ struct SetupView: View {
         }
     }
 
+    /// One of three styles instead of separate switches; each card shows the real menu bar.
     private var menuBar: some View {
         VStack(alignment: .leading, spacing: 10) {
             title("setup.menuBar.title", "setup.menuBar.body")
-            HStack {
-                Spacer()
-                MenuBarLabel(model: model, l: l)
-                    .padding(.horizontal, 10).padding(.vertical, 5)
-                    .background(RoundedRectangle(cornerRadius: 6).fill(Color.primary.opacity(0.08)))
-                Spacer()
+            ForEach(MenuBarStyle.allCases, id: \.self) { style in
+                ChoiceCard(symbol: "menubar.rectangle", tint: .indigo, title: l.t("style.\(style.rawValue)"),
+                           detail: l.t("style.\(style.rawValue).body"),
+                           selected: model.settings.menuBarStyle == style) {
+                    model.update { $0.menuBarStyle = style }
+                } trailing: {
+                    MenuBarSample(model: model, l: l, style: style)
+                }
             }
-            .padding(.vertical, 6)
-            VStack(spacing: 0) {
-                toggle("moon.stars.fill", .indigo, "settings.showIcon", \.showIcon)
-                SettingsDivider()
-                toggle("textformat", .indigo, "settings.showPrayerName", \.showPrayerName)
-                SettingsDivider()
-                toggle("clock.badge", .indigo, "settings.showSecondsAlways", \.showSecondsAlways)
-                SettingsDivider()
-                toggle("circle.dotted", .indigo, "settings.blinkColon", \.blinkColon)
-                SettingsDivider()
-                toggle("paintpalette", .orange, "settings.colorPreAdhan", \.colorPreAdhan)
-            }
-            .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.05)))
-            PreAdhanColorExample(model: model, l: l)
         }
     }
 
+    /// Notification, colour and gold label as three cards you switch on or off.
     private var alerts: some View {
         VStack(alignment: .leading, spacing: 10) {
             title("setup.alerts.title", "setup.alerts.body")
-            VStack(spacing: 0) {
-                SettingsRow(symbol: "bell", tint: .orange, title: l.t("setup.alerts.notifications")) {
-                    SettingsSwitch(isOn: Binding(
-                        get: { model.settings.notifyPreAdhan1 || model.settings.notifyPreAdhan2 || model.settings.notifyAtPrayer },
-                        set: { on in
-                            model.update { $0.notifyPreAdhan1 = on; $0.notifyPreAdhan2 = on; $0.notifyAtPrayer = on }
-                            if on { model.requestNotificationPermission() }
-                        }))
+            ToggleCard(symbol: "bell.fill", tint: .orange, title: l.t("alert.notifications"),
+                       detail: l.t("alert.notifications.body"),
+                       isOn: Binding(get: { model.settings.notifiesPrayers },
+                                     set: { on in
+                                         model.update { $0.notifiesPrayers = on }
+                                         if on { model.requestNotificationPermission() }
+                                     })) {
+                if model.isStandalone {
+                    HStack(spacing: 10) {
+                        MinuteStepper(value: model.standalone.firstMinutes, l: l) { v in
+                            model.updateStandalone { $0.firstMinutes = v }
+                        }
+                        MinuteStepper(value: model.standalone.secondMinutes, l: l) { v in
+                            model.updateStandalone { $0.secondMinutes = v; $0.secondEnabled = v > 0 }
+                        }
+                    }
                 }
             }
-            .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.05)))
-            if model.notificationsDenied {
+            ToggleCard(symbol: "paintpalette.fill", tint: .orange, title: l.t("alert.color"),
+                       detail: l.t("alert.color.body"), isOn: flag(\.colorPreAdhan)) {
+                HStack(spacing: 4) {
+                    Circle().fill(Color.orange).frame(width: 8, height: 8)
+                    Circle().fill(Color.red).frame(width: 8, height: 8)
+                }
+            }
+            ToggleCard(symbol: "sparkles", tint: .yellow, title: l.t("alert.signal"),
+                       detail: l.t("alert.signal.body"), isOn: flag(\.prayerSignal)) {
+                Image(nsImage: MenuBarRenderer.badge(symbol: nil, text: l.t(Prayer.asr.localizationKey), dimmed: false))
+            }
+            if model.notificationsDenied && model.settings.notifiesPrayers {
                 Text(l.t("settings.notificationsDenied")).font(.caption).foregroundStyle(.orange)
             }
         }
@@ -164,29 +174,43 @@ struct SetupView: View {
         }
     }
 
-    /// Away from home: location for the right prayer times, and the adhan on the Mac.
-    /// Without Home Assistant: the sounds from the Nida library.
-    private var awayStep: some View {
-        Group {
-            if model.isStandalone { soundStep } else { haAwayStep }
+    /// Whether this Mac plays the adhan. Standalone: yes or no, and the voice.
+    /// With Home Assistant: always, only away from home, or never.
+    private var sound: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            title("setup.sound.title", model.isStandalone ? "setup.sound.body" : "setup.sound.bodyHA")
+            if model.isStandalone {
+                standaloneSound
+            } else {
+                ForEach([PlaybackMode.away, .always, .off], id: \.self) { mode in
+                    ChoiceCard(symbol: mode == .off ? "speaker.slash.fill" : "speaker.wave.2.fill",
+                               tint: mode == .off ? .gray : .teal, title: l.t("playback.\(mode.rawValue).title"),
+                               detail: l.t("playback.\(mode.rawValue).body"),
+                               selected: model.settings.playbackMode == mode) {
+                        model.update { $0.playbackMode = mode }
+                        if mode == .away { model.requestLocationPermission() }
+                    } trailing: { EmptyView() }
+                }
+            }
         }
+        .onAppear { if model.isStandalone { model.loadCatalog() } }
     }
 
-    private var soundStep: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            title("setup.sound.title", "setup.sound.body")
-            StandaloneSoundSettings(model: model, l: l)
-                .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.05)))
+    @ViewBuilder
+    private var standaloneSound: some View {
+        ChoiceCard(symbol: "speaker.wave.2.fill", tint: .teal, title: l.t("sound.yes"), detail: l.t("sound.yes.body"),
+                   selected: model.standalone.playSounds) {
+            model.updateStandalone { $0.playSounds = true }
+        } trailing: { EmptyView() }
+        if model.standalone.playSounds {
+            VoiceRow(model: model, l: l)
+                .padding(.vertical, 4)
+                .background(RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.05)))
         }
-    }
-
-    private var haAwayStep: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            title("setup.away.title", "setup.away.body")
-            AwaySettings(model: model, l: l)
-                .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.05)))
-        }
-        .onAppear { model.requestLocationPermission() }
+        ChoiceCard(symbol: "speaker.slash.fill", tint: .gray, title: l.t("sound.no"), detail: l.t("sound.no.body"),
+                   selected: !model.standalone.playSounds) {
+            model.updateStandalone { $0.playSounds = false }
+        } trailing: { EmptyView() }
     }
 
     private var done: some View {
@@ -263,11 +287,15 @@ struct SetupView: View {
         }
     }
 
-    private func toggle(_ symbol: String, _ tint: Color, _ key: String, _ flag: WritableKeyPath<AppSettings, Bool>) -> some View {
-        SettingsRow(symbol: symbol, tint: tint, title: l.t(key)) {
-            SettingsSwitch(isOn: Binding(get: { model.settings[keyPath: flag] },
-                                         set: { value in model.update { $0[keyPath: flag] = value } }))
-        }
+    private func flag(_ path: WritableKeyPath<AppSettings, Bool>) -> Binding<Bool> {
+        Binding(get: { model.settings[keyPath: path] }, set: { value in model.update { $0[keyPath: path] = value } })
+    }
+
+    /// Opens at the step a Change button in the settings asked for.
+    private func takeEntry() {
+        guard let entry = model.setupEntry else { return }
+        model.setupEntry = nil
+        step = Step(rawValue: entry) ?? .welcome
     }
 }
 
@@ -298,43 +326,12 @@ struct SetupWindow: View {
     }
 }
 
-/// Three menu bar samples: normal, first pre-adhan (orange) and second pre-adhan (red),
-/// drawn exactly like the real menu bar with the current settings.
-struct PreAdhanColorExample: View {
-    @ObservedObject var model: PrayerModel
-    let l: Localizing
-
-    var body: some View {
-        let s = model.settings
-        let name = s.showPrayerName ? l.t(Prayer.asr.localizationKey) + " " : ""
-        let samples: [(String, String, NSColor?)] = [
-            ("setup.color.normal", name + "02:14", nil),
-            ("setup.color.pre1", name + Formatters.menuBarCountdown(24 * 60 + 31, showSeconds: s.showSeconds,
-                                                                    secondsAlways: s.showSecondsAlways), .systemOrange),
-            ("setup.color.pre2", name + Formatters.menuBarCountdown(9 * 60 + 58, showSeconds: s.showSeconds,
-                                                                    secondsAlways: s.showSecondsAlways), .systemRed),
-        ]
-        HStack(alignment: .top, spacing: 8) {
-            ForEach(samples, id: \.0) { key, text, color in
-                VStack(spacing: 4) {
-                    Image(nsImage: MenuBarRenderer.image(symbol: s.showIcon ? "moon.stars.fill" : nil, text: text,
-                                                         color: s.colorPreAdhan ? color : nil))
-                        .padding(.horizontal, 8).padding(.vertical, 4)
-                        .background(RoundedRectangle(cornerRadius: 5).fill(Color.primary.opacity(0.08)))
-                    Text(l.t(key, key == "setup.color.pre1" ? model.preAdhan.firstMinutes : model.preAdhan.secondMinutes))
-                        .font(.caption2).foregroundStyle(.secondary).multilineTextAlignment(.center)
-                }
-                .frame(maxWidth: .infinity)
-            }
-        }
-        .padding(.top, 4)
-    }
-}
-
 /// Location and sound away from home; used in the setup and in the settings.
 struct AwaySettings: View {
     @ObservedObject var model: PrayerModel
     let l: Localizing
+    /// The settings show playback in their main group, so they leave it out here.
+    var showsPlayback = true
 
     var body: some View {
         VStack(spacing: 0) {
@@ -358,6 +355,7 @@ struct AwaySettings: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 8).padding(.bottom, 6)
             SettingsDivider()
+            if showsPlayback {
             SettingsRow(symbol: "speaker.wave.2", tint: .teal, title: l.t("settings.playback")) {
                 Menu {
                     ForEach(PlaybackMode.allCases, id: \.self) { mode in
@@ -369,6 +367,7 @@ struct AwaySettings: View {
                 .menuStyle(.borderlessButton)
                 .fixedSize()
                 .controlSize(.small)
+            }
             }
             VStack(alignment: .leading, spacing: 4) {
                 Text(l.t("settings.soundHelp", model.audio.volumes[.adhan] ?? 0,
