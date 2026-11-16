@@ -1,0 +1,32 @@
+{
+  "appName": "Nida Connect",
+  "executableName": "NidaConnect",
+  "bundleId": "nl.majikan.nidaconnect",
+  "version": "1.0.0",
+  "minimumMacOS": "13.0",
+  "repository": "joohann/Nida-Connect-OSX",
+  "signing": {
+    "identity": "Nida Connect Signing",
+    "notaryProfile": ""
+  },
+  "homeAssistant": {
+    "integrationDomain": "nida",
+    "reconnectSeconds": 5,
+    "maxReconnectSeconds": 300,
+    "loginPort": 47815
+  },
+  "away": {
+    "distanceKm": 15,
+    "aladhanUrl": "https://api.aladhan.com/v1"
+  },
+  "update": {
+    "feedUrl": "https://raw.githubusercontent.com/{repository}/main/appcast.xml",
+    "downloadUrl": "https://github.com/{repository}/releases/download/v{version}/{executableName}-{version}.dmg",
+    "releaseNotesUrl": "https://github.com/{repository}/releases/tag/v{version}",
+    "publicKey": "aB/hc6rrivGnSZF1m9BC+hLrBQJqhwRngy8ZKQulcQg=",
+    "keyAccount": "nl.majikan.nidaconnect",
+    "checkSeconds": 86400,
+    "sparkleVersion": "2.10.1",
+    "sparkleSha256": "1a856d2a9edb8e628de88121d7be04cf0e2167f8641650b78fca00b14244cf27"
+  }
+}

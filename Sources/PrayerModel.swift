@@ -1,0 +1,571 @@
+import AppKit
+import Combine
+
+/// Combines Nida's data from Home Assistant, the clock and the settings for the UI.
+@MainActor
+final class PrayerModel: ObservableObject {
+    @Published private(set) var now: Date
+    /// The prayer day in use: Nida's at home, Aladhan's for the current place when away.
+    @Published private(set) var day: PrayerDay
+    /// Set while the Mac is more than `away.distanceKm` from Nida's location.
+    @Published private(set) var away: AwayPlace?
+    @Published private(set) var locationStatus: LocationStatus = .notDetermined
+    @Published private(set) var preAdhan: PreAdhanSettings
+    @Published private(set) var connection: ConnectionState = .notConfigured
+    @Published private(set) var settings: AppSettings
+    @Published private(set) var launchAtLogin: Bool
+    @Published private(set) var notificationsDenied = false
+    @Published private(set) var isRefreshing = false
+    /// The address chosen at sign-in.
+    @Published private(set) var server: ServerAddress?
+    /// The address the live connection uses: home, external or Nabu Casa.
+    @Published private(set) var activeRoute: ServerAddress?
+    @Published private(set) var endpoints: HAEndpoints
+    /// Nida's sound settings: which adhan and jingle, volumes, per-prayer switches, guest mode.
+    @Published private(set) var audio: NidaAudioSettings
+    /// The sound playing right now, shown with a Stop button.
+    @Published private(set) var playing: PlannedSound?
+    /// How the app is signed in, or nil when it is not.
+    @Published private(set) var signIn: SignInMethod?
+    @Published private(set) var isLoggingIn = false
+    @Published private(set) var loginError: AuthError?
+    /// macOS blocks local network access for this app (System Settings, Privacy, Local Network).
+    @Published private(set) var localNetworkDenied = false
+    /// Version found by a background update check, shown on the card until the user acts on it.
+    @Published private(set) var availableUpdate: String?
+    /// Home Assistant instances found on the local network while the connection form is open.
+    @Published private(set) var discovered: [DiscoveredServer] = []
+
+    let config: AppConfig
+    private let source: NidaSource
+    private let credentials: CredentialStoring
+    /// Read once from the Keychain and kept in memory, so macOS does not ask on every reconnect.
+    private var credential: HACredential?
+    private let makeLogin: () -> LoopbackLogin
+    private let openURL: (URL) -> Void
+    private var loginTask: Task<Void, Never>?
+    private var discoveryWanted = false
+    private let loginItem: LoginItemManaging
+    private let preferences: PreferencesStoring
+    private let notifier: NotificationPosting
+    private let planner: NotificationPlanner
+    private let updater: UpdateManaging
+    private let discovery: ServerDiscovering?
+    private let sounds: SoundCaching?
+    private let player: SoundPlaying?
+    private let soundPlanner = SoundPlanner()
+    private let location: LocationProviding?
+    private let aladhan: AladhanClient?
+    private var nidaDay: PrayerDay
+    private var awayDay: (day: PrayerDay, place: Coordinate, date: String)?
+    private var awayFetch: Task<Void, Never>?
+    private var method: Int
+    private var nidaHome: Coordinate?
+    private var haHome: Coordinate?
+    private var lastAwayCheck = Date.distantPast
+    private let clock: () -> Date
+    private let prayerClock = PrayerClock()
+    private var scheduledPlan: [PlannedNotification]?
+    private var ticker: Timer?
+    private var wake: AnyCancellable?
+    private var settingsTask: Task<Void, Never>?
+
+    init(config: AppConfig, source: NidaSource, credentials: CredentialStoring,
+         makeLogin: @escaping () -> LoopbackLogin, openURL: @escaping (URL) -> Void = { NSWorkspace.shared.open($0) },
+         loginItem: LoginItemManaging,
+         preferences: PreferencesStoring, notifier: NotificationPosting, planner: NotificationPlanner,
+         updater: UpdateManaging? = nil, discovery: ServerDiscovering? = nil,
+         sounds: SoundCaching? = nil, player: SoundPlaying? = nil,
+         location: LocationProviding? = nil, aladhan: AladhanClient? = nil,
+         clock: @escaping () -> Date = Date.init) {
+        self.config = config
+        self.source = source
+        self.credentials = credentials
+        self.makeLogin = makeLogin
+        self.openURL = openURL
+        self.loginItem = loginItem
+        self.preferences = preferences
+        self.notifier = notifier
+        self.planner = planner
+        self.updater = updater ?? NoUpdates()
+        self.discovery = discovery
+        self.sounds = sounds
+        self.player = player
+        self.location = location
+        self.aladhan = aladhan
+        let calc = preferences.lastCalculation ?? .nidaDefault
+        self.method = calc.method
+        self.nidaHome = calc.home
+        self.audio = preferences.lastAudio ?? .nidaDefault
+        self.clock = clock
+        self.now = clock()
+        self.nidaDay = preferences.lastDay ?? PrayerDay()
+        self.day = preferences.lastDay ?? PrayerDay()
+        self.preAdhan = preferences.lastPreAdhan ?? .nidaDefault
+        self.settings = preferences.load()
+        self.launchAtLogin = loginItem.isEnabled
+        self.server = preferences.serverAddress.flatMap(ServerAddress.init)
+        self.endpoints = preferences.endpoints ?? HAEndpoints()
+        let stored = credentials.load()
+        self.credential = stored
+        self.signIn = stored.map(SignInMethod.init)
+        start()
+    }
+
+    /// The colon toggles on every whole second of the system clock, like the menu bar clock's
+    /// flashing separators: visible on even seconds, hidden on odd ones.
+    var colonVisible: Bool {
+        guard settings.blinkColon else { return true }
+        let second = Int(now.timeIntervalSince1970.rounded(.down))
+        return second % 2 == 0
+    }
+
+    var upcoming: UpcomingPrayer? { prayerClock.upcoming(day: day, preAdhan: preAdhan, now: now) }
+
+    /// The phase the menu bar shows in colour; `.normal` when colours are switched off.
+    var menuBarPhase: CountdownPhase {
+        guard settings.colorPreAdhan else { return .normal }
+        return upcoming?.phase ?? .normal
+    }
+
+    // MARK: Actions
+
+    func refresh() {
+        guard !isRefreshing else { return }
+        isRefreshing = true
+        if connection == .connected { source.refreshSettings() } else { connectIfConfigured() }
+        Task {
+            try? await Task.sleep(nanoseconds: 800_000_000)
+            isRefreshing = false
+        }
+    }
+
+    /// Saves the address and a long-lived token and connects. Returns false when something is invalid.
+    @discardableResult
+    func saveConnection(address: String, token: String) -> Bool {
+        guard let server = ServerAddress(address) else { return false }
+        let token = token.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !token.isEmpty {
+            let next = HACredential.longLived(token: token)
+            do { try credentials.save(next) } catch { return false }
+            credential = next
+        } else if credential == nil {
+            return false
+        }
+        use(server: server, credential: credential)
+        return true
+    }
+
+    /// Opens Home Assistant's login page in the browser and waits for the redirect.
+    func login(address: String) {
+        guard let server = ServerAddress(address), !isLoggingIn else { return }
+        isLoggingIn = true
+        loginError = nil
+        let login = makeLogin()
+        loginTask = Task { [weak self] in
+            do {
+                let result = try await login.run(server: server) { url in self?.openURL(url) }
+                guard let self else { return }
+                try? self.credentials.save(result.credential)
+                self.credential = result.credential
+                self.use(server: server, credential: result.credential,
+                         seed: (result.accessToken, result.expires))
+            } catch let error as AuthError {
+                if error != .cancelled { self?.loginError = error }
+            } catch {
+                self?.loginError = .unreachable
+            }
+            self?.isLoggingIn = false
+            self?.loginTask = nil
+            NSApp.activate(ignoringOtherApps: true)
+        }
+    }
+
+    func cancelLogin() {
+        loginTask?.cancel()
+    }
+
+    /// Signs out: revokes an OAuth refresh token in Home Assistant and removes everything stored.
+    func forgetConnection() {
+        if let server, case .oauth(let refresh, _)? = credential {
+            Task { await HomeAssistantTokenAPI().revoke(server: server, refreshToken: refresh) }
+        }
+        credentials.delete()
+        credential = nil
+        preferences.endpoints = nil
+        endpoints = HAEndpoints()
+        activeRoute = nil
+        preferences.serverAddress = nil
+        server = nil
+        signIn = nil
+        source.disconnect()
+    }
+
+    /// Bonjour browsing while the connection form is open; it also tells whether macOS blocks the local network.
+    func startDiscovery() {
+        discoveryWanted = true
+        runDiscovery(true)
+    }
+
+    func stopDiscovery() {
+        discoveryWanted = false
+        runDiscovery(connection != .connected)
+    }
+
+    func openLocalNetworkSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocalNetwork") {
+            openURL(url)
+        }
+    }
+
+    private func runDiscovery(_ on: Bool) {
+        guard let discovery else { return }
+        if on {
+            discovery.onChange = { [weak self, weak discovery] in
+                guard let self, let discovery else { return }
+                self.discovered = discovery.servers
+                self.localNetworkDenied = discovery.isDenied
+            }
+            discovery.start()
+        } else {
+            discovery.stop()
+        }
+    }
+
+    private func use(server: ServerAddress, credential: HACredential?,
+                     seed: (token: String, expires: Date)? = nil) {
+        if server != self.server, !endpoints.routes(primary: server).contains(where: { $0 == self.server }) {
+            // Another Home Assistant: its old addresses no longer apply.
+            endpoints = HAEndpoints()
+            preferences.endpoints = nil
+        }
+        preferences.serverAddress = server.baseURL.absoluteString
+        self.server = server
+        signIn = credential.map(SignInMethod.init)
+        loginError = nil
+        connectIfConfigured(seed: seed)
+    }
+
+    // MARK: Setup
+
+    /// The first-launch setup shows until it is finished. Someone already signed in (an update
+    /// from a version without setup) does not need it; it stays available from the settings.
+    var needsSetup: Bool {
+        if !preferences.setupDone && signIn != nil { preferences.setupDone = true }
+        return !preferences.setupDone
+    }
+
+    func finishSetup() {
+        preferences.setupDone = true
+    }
+
+    func setLaunchAtLogin(_ on: Bool) {
+        guard on != loginItem.isEnabled else { return }
+        toggleLaunchAtLogin()
+    }
+
+    /// Asks macOS for permission now, so the question comes during setup and not at the first prayer.
+    func requestNotificationPermission() {
+        Task { await authorizeNotifications() }
+    }
+
+    func toggleLaunchAtLogin() {
+        try? loginItem.setEnabled(!loginItem.isEnabled)
+        launchAtLogin = loginItem.isEnabled
+    }
+
+    func checkForUpdates() {
+        updater.checkNow()
+    }
+
+    func update(_ change: (inout AppSettings) -> Void) {
+        var next = settings
+        change(&next)
+        guard next != settings else { return }
+        let turnedOn = next.wantsNotifications && !settings.wantsNotifications
+        settings = next
+        preferences.save(next)
+        updater.automaticallyChecks = next.checkForUpdates
+        if !next.checkForUpdates { availableUpdate = nil }
+        scheduleNotifications(force: true)
+        if turnedOn { Task { await authorizeNotifications() } }
+    }
+
+    // MARK: Lifecycle
+
+    private func start() {
+        updater.automaticallyChecks = settings.checkForUpdates
+        updater.onUpdateFound = { [weak self] version in self?.updateFound(version) }
+        updater.onUpdateHandled = { [weak self] in self?.availableUpdate = nil }
+        notifier.onStop = { [weak self] in self?.stopSound() }
+        player?.onFinish = { [weak self] in self?.playing = nil }
+        notifier.onOpen = { [weak self] id in
+            if id == NotificationPlanner.updateId { self?.checkForUpdates() }
+        }
+        source.onEvent = { [weak self] event in self?.handle(event) }
+        location?.onChange = { [weak self] in self?.refreshAway() }
+        location?.start()
+
+        scheduleTick()
+        wake = NSWorkspace.shared.notificationCenter
+            .publisher(for: NSWorkspace.didWakeNotification)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.now = self.clock()
+                self.connectIfConfigured()
+            }
+        // Nida's settings change without a state event; re-read them every 10 minutes.
+        settingsTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 600_000_000_000)
+                self?.source.refreshSettings()
+            }
+        }
+        if settings.wantsNotifications {
+            Task { await authorizeNotifications() }
+        }
+        scheduleNotifications(force: true)
+        connectIfConfigured()
+    }
+
+    /// Ticks on every whole second of the system clock. Each tick schedules the next one from the
+    /// clock itself, so it never drifts; seconds and colon change together with the system clock.
+    private func scheduleTick() {
+        let reference = clock().timeIntervalSince1970
+        let next = Date(timeIntervalSince1970: reference.rounded(.down) + 1)
+        let timer = Timer(fire: next, interval: 0, repeats: false) { [weak self] _ in
+            Task { @MainActor in
+                guard let self else { return }
+                let previous = self.now
+                self.now = self.clock()
+                self.scheduleNotifications()
+                self.playDueSound(since: previous)
+                if self.now.timeIntervalSince(self.lastAwayCheck) >= 60 { self.refreshAway() }
+                self.scheduleTick()
+            }
+        }
+        timer.tolerance = 0.02
+        RunLoop.main.add(timer, forMode: .common)
+        ticker = timer
+    }
+
+    // MARK: Away from home
+
+    /// Home is Nida's own location, or Home Assistant's home when Nida follows it.
+    var home: Coordinate? { nidaHome ?? haHome }
+
+    func requestLocationPermission() {
+        location?.requestPermission()
+    }
+
+    func openLocationSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices") {
+            openURL(url)
+        }
+    }
+
+    private func saveCalculation() {
+        preferences.lastCalculation = NidaCalculation(method: method, home: home)
+        awayDay = nil   // method or home changed: fetch again
+        refreshAway()
+    }
+
+    /// Decides between Nida's times and own times for the current place, and fetches those once
+    /// per day and place (again after moving 5 km). Pre-adhan, sounds and notifications stay Nida's.
+    private func refreshAway() {
+        lastAwayCheck = now
+        locationStatus = location?.status ?? .denied
+        guard let here = location?.current, let home else {
+            setAway(nil)
+            return
+        }
+        let distance = here.distanceKm(to: home)
+        guard distance > config.away.distanceKm else {
+            setAway(nil)
+            return
+        }
+        setAway(AwayPlace(name: location?.placeName, distanceKm: distance))
+        let today = Self.dayKey(now)
+        if let cached = awayDay, cached.date == today, cached.place.distanceKm(to: here) < 5 { return }
+        guard awayFetch == nil, let aladhan else { return }
+        let method = self.method
+        awayFetch = Task { [weak self] in
+            let result = try? await aladhan.day(for: Date(), at: here, method: method)
+            guard let self else { return }
+            self.awayFetch = nil
+            guard let result else { return }
+            self.awayDay = (result, here, today)
+            self.useDay()
+        }
+    }
+
+    private func setAway(_ next: AwayPlace?) {
+        if next == nil { awayDay = nil }
+        if next != away { away = next }
+        useDay()
+    }
+
+    /// Switches to the right day and replans notifications when it changed.
+    private func useDay() {
+        let next = (away != nil ? awayDay?.day : nil) ?? nidaDay
+        guard next != day else { return }
+        day = next
+        scheduleNotifications(force: true)
+    }
+
+    private static func dayKey(_ date: Date) -> String {
+        let c = Calendar.current.dateComponents([.year, .month, .day], from: date)
+        return "\(c.year ?? 0)-\(c.month ?? 0)-\(c.day ?? 0)"
+    }
+
+    // MARK: Sound
+
+    /// Whether the Mac plays the sounds itself right now. In "away" mode only over Nabu Casa or
+    /// the external address: at home Home Assistant plays them on its own speakers.
+    var playsSoundsHere: Bool {
+        switch settings.playbackMode {
+        case .off: return false
+        case .always: return true
+        case .away: return routeKind == .nabuCasa || routeKind == .external
+        }
+    }
+
+    func stopSound() {
+        player?.stop()
+        playing = nil
+    }
+
+    /// Plays Nida's own file at Nida's own volume, from the local copy.
+    func play(_ sound: PlannedSound) {
+        guard let player, let url = sounds?.localURL(for: sound.file) else {
+            Log.connection.info("sound not available locally")
+            return
+        }
+        if player.play(url, volume: sound.volume) { playing = sound }
+    }
+
+    /// Plays the pre-adhan jingle once, to check the volume.
+    func testSound() {
+        if playing != nil { stopSound(); return }
+        guard let prayer = upcoming?.prayer ?? Prayer.allCases.first else { return }
+        play(PlannedSound(prayer: prayer, kind: .preAdhan, file: audio.sounds[.preAdhanJingle] ?? "",
+                          volume: audio.volumes[.preAdhanJingle] ?? 20))
+    }
+
+    private func playDueSound(since previous: Date) {
+        guard playsSoundsHere, let sound = soundPlanner.due(from: previous, to: now, day: day,
+                                                           preAdhan: preAdhan, audio: audio) else { return }
+        play(sound)
+    }
+
+    /// Keeps local copies of the chosen files, fetched over whichever address is in use.
+    private func fetchSounds() {
+        guard let sounds, let route = activeRoute else { return }
+        let files = Array(Set(audio.sounds.values))
+        Task { await sounds.fetch(files, from: route) }
+    }
+
+    private func connectIfConfigured(seed: (token: String, expires: Date)? = nil) {
+        guard let server, let credential else {
+            connection = .notConfigured
+            return
+        }
+        source.connect(routes: endpoints.routes(primary: server),
+                       auth: HomeAssistantAuth(credential: credential, seed: seed))
+    }
+
+    private func handle(_ event: NidaEvent) {
+        switch event {
+        case .state(let state):
+            connection = state
+            // While Home Assistant is out of reach, check whether macOS blocks the local network.
+            if state == .connected { localNetworkDenied = false }
+            runDiscovery(discoveryWanted || (state != .connected && state != .notConfigured))
+        case .day(let next):
+            guard next != nidaDay else { return }
+            nidaDay = next
+            if next.isComplete { preferences.lastDay = next }
+            useDay()
+        case .calculation(let m, let home):
+            method = m
+            nidaHome = home
+            saveCalculation()
+        case .haHome(let home):
+            haHome = home
+            saveCalculation()
+        case .route(let address):
+            activeRoute = address
+            fetchSounds()
+        case .audio(let next):
+            guard next != audio else { return }
+            audio = next
+            preferences.lastAudio = next
+            fetchSounds()
+        case .endpoints(let next):
+            guard next != endpoints else { return }
+            endpoints = next
+            preferences.endpoints = next
+            if let server { source.update(routes: next.routes(primary: server)) }
+        case .preAdhan(let next):
+            guard next != preAdhan else { return }
+            preAdhan = next
+            preferences.lastPreAdhan = next
+            scheduleNotifications(force: true)
+        }
+    }
+
+    private func updateFound(_ version: String) {
+        Log.update.info("update found: \(version, privacy: .public)")
+        availableUpdate = version
+        if let note = planner.updateNote(version: version, settings: settings,
+                                         notified: preferences.notifiedUpdateVersion) {
+            preferences.notifiedUpdateVersion = version
+            notifier.post(note)
+        }
+    }
+
+    private func authorizeNotifications() async {
+        _ = await notifier.requestAuthorization()
+        notificationsDenied = await notifier.isDenied()
+    }
+
+    /// Reschedules only when the plan changed, e.g. after a prayer passed or settings changed.
+    private func scheduleNotifications(force: Bool = false) {
+        let plan = planner.prayerPlan(day: day, preAdhan: preAdhan, now: now, settings: settings)
+        guard force || plan.map(\.id) != scheduledPlan?.map(\.id) else { return }
+        scheduledPlan = plan
+        notifier.replaceScheduled(plan, ids: NotificationPlanner.prayerIds)
+    }
+}
+
+/// How the app is signed in to Home Assistant, for display.
+enum SignInMethod: Equatable {
+    case loginPage
+    case token
+
+    init(_ credential: HACredential) {
+        switch credential {
+        case .oauth: self = .loginPage
+        case .longLived: self = .token
+        }
+    }
+}
+
+/// Which kind of address the connection uses, for display.
+enum RouteKind: Equatable {
+    case home, external, nabuCasa
+}
+
+extension PrayerModel {
+    var routeKind: RouteKind? {
+        guard let route = activeRoute, connection == .connected else { return nil }
+        if endpoints.isCloud(route) { return .nabuCasa }
+        return route.isLocal ? .home : .external
+    }
+}
+
+/// Where the Mac is when it is away from Nida's location. Value object.
+struct AwayPlace: Equatable {
+    let name: String?
+    let distanceKm: Double
+}
