@@ -120,6 +120,8 @@
 "setup.color.pre1" = "Pre-adhan 1 (%ld min)";
 "setup.color.pre2" = "Pre-adhan 2 (%ld min)";
 "settings.colorPreAdhanHelp" = "Orange from the first pre-adhan (%1$ld min), red from the second (%2$ld min), as set in Nida.";
+"settings.prayerSignal" = "Gold label at prayer time";
+"settings.prayerSignalHelp" = "At the adhan the countdown becomes a gold label with the prayer's name. It also shows when Focus mutes the notification. Opening the panel ends it.";
 "setup.away.title" = "Away from home";
 "setup.away.body" = "Away from home, the prayer times follow where you are, calculated like Nida does. macOS asks for your location: choose Allow.";
 "settings.away" = "Away from home";

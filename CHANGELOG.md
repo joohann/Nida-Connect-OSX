@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0
+
+### New
+
+- **Gold label at prayer time.** At the adhan the countdown in the menu bar becomes a gold label with the prayer's name, for 1, 5, 10 or 15 minutes (5 by default). It pulses with the system clock when the blinking colon is on. Opening the panel ends it. Useful when Focus mutes the notification: the label still shows. On by default; switch it off under Menu bar in the settings.
+- **New install window.** The DMG opens in a green window in the style of the app icon, with an arrow from Nida Connect to Applications.
+
 ## 1.0.0
 
 ### New

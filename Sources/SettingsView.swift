@@ -40,6 +40,25 @@ struct SettingsView: View {
                     SettingsSwitch(isOn: binding(\.colorPreAdhan))
                 }
                 .help(l.t("settings.colorPreAdhanHelp", model.preAdhan.firstMinutes, model.preAdhan.secondMinutes))
+                SettingsDivider()
+                SettingsRow(symbol: "sparkles", tint: .yellow, title: l.t("settings.prayerSignal")) {
+                    Menu {
+                        ForEach(AppSettings.prayerSignalChoices, id: \.self) { minutes in
+                            Button(l.t("settings.minutes", minutes)) {
+                                model.update { $0.prayerSignalMinutes = minutes }
+                            }
+                        }
+                    } label: {
+                        Text(l.t("settings.minutes", model.settings.prayerSignalMinutes))
+                    }
+                    .menuStyle(.borderlessButton)
+                    .fixedSize()
+                    .controlSize(.small)
+                    .disabled(!model.settings.prayerSignal)
+                    .opacity(model.settings.prayerSignal ? 1 : 0.4)
+                    SettingsSwitch(isOn: binding(\.prayerSignal))
+                }
+                .help(l.t("settings.prayerSignalHelp"))
             }
             group("settings.notifications") {
                 row("bell", .orange, "settings.notifyPreAdhan1", \.notifyPreAdhan1,

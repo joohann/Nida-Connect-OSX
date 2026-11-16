@@ -10,6 +10,11 @@ struct AppSettings: Equatable {
     var colorPreAdhan = true
     /// The colon blinks with the system clock, so you can see the app is running.
     var blinkColon = true
+    /// At the adhan the countdown becomes a gold label with the prayer's name, for a few minutes.
+    /// A quiet signal that also shows when Focus mutes the notification.
+    var prayerSignal = true
+    var prayerSignalMinutes = 5
+    static let prayerSignalChoices = [1, 5, 10, 15]
     // Sound
     var playbackMode: PlaybackMode = .away
     // Notifications
@@ -52,6 +57,7 @@ final class UserDefaultsPreferences: PreferencesStoring {
         ("showSecondsAlways", \.showSecondsAlways),
         ("colorPreAdhan", \.colorPreAdhan),
         ("blinkColon", \.blinkColon),
+        ("prayerSignal", \.prayerSignal),
         ("notifyPreAdhan1", \.notifyPreAdhan1),
         ("notifyPreAdhan2", \.notifyPreAdhan2),
         ("notifyAtPrayer", \.notifyAtPrayer),
@@ -71,6 +77,7 @@ final class UserDefaultsPreferences: PreferencesStoring {
         let d = AppSettings()
         var registered: [String: Any] = [:]
         Self.flags.forEach { registered[$0.key] = d[keyPath: $0.path] }
+        registered["prayerSignalMinutes"] = d.prayerSignalMinutes
         defaults.register(defaults: registered)
     }
 
@@ -78,12 +85,15 @@ final class UserDefaultsPreferences: PreferencesStoring {
         var s = AppSettings()
         for f in Self.flags { s[keyPath: f.path] = defaults.bool(forKey: f.key) }
         s.playbackMode = defaults.string(forKey: "playbackMode").flatMap(PlaybackMode.init) ?? .away
+        let minutes = defaults.integer(forKey: "prayerSignalMinutes")
+        s.prayerSignalMinutes = AppSettings.prayerSignalChoices.contains(minutes) ? minutes : s.prayerSignalMinutes
         return s
     }
 
     func save(_ s: AppSettings) {
         for f in Self.flags { defaults.set(s[keyPath: f.path], forKey: f.key) }
         defaults.set(s.playbackMode.rawValue, forKey: "playbackMode")
+        defaults.set(s.prayerSignalMinutes, forKey: "prayerSignalMinutes")
     }
 
     var serverAddress: String? {

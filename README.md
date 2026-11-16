@@ -34,6 +34,14 @@ scripts/i18n.sh fill xx    # add only the missing keys, empty
 
 `Icon/IconDrawing.swift` draws the app icon on the macOS icon grid (824 px body, radius 185 on a 1024 canvas), with the mosque from Nida's own icon (`Icon/AppIcon-source.png`). That shape keeps macOS from putting the icon on a grey plate.
 
+### Install window
+
+`Icon/DMGBackground/main.swift` draws the DMG window background (660 × 400, 1x and 2x) with the app name from `config.json`, and holds the icon positions. `scripts/package.sh` uses it and lets Finder store the layout; the first time, macOS asks to allow controlling Finder.
+
+### Previewing the gold label
+
+Start the app with `open -a "Nida Connect" --args -previewPrayerSignal 90` to see the gold prayer label for 90 seconds, without waiting for a prayer time.
+
 ### Signing
 
 `signing.identity` in `config.json` is a local, self-signed code signing certificate. It gives the app a stable signature, so the Keychain recognises it after every build and update and does not ask for your password again. Create it once with `scripts/signing-identity.sh`. With an Apple Developer ID, put its name there instead; the build then also enables the hardened runtime and notarisation.

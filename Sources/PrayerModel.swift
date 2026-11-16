@@ -5,6 +5,10 @@ import Combine
 @MainActor
 final class PrayerModel: ObservableObject {
     @Published private(set) var now: Date
+    /// The prayer time whose gold label was ended by opening the panel.
+    @Published private var dismissedSignal: Date?
+    /// Until when the gold label shows as a preview.
+    @Published private var signalPreviewUntil: Date?
     /// The prayer day in use: Nida's at home, Aladhan's for the current place when away.
     @Published private(set) var day: PrayerDay
     /// Set while the Mac is more than `away.distanceKm` from Nida's location.
@@ -121,6 +125,34 @@ final class PrayerModel: ObservableObject {
     }
 
     var upcoming: UpcomingPrayer? { prayerClock.upcoming(day: day, preAdhan: preAdhan, now: now) }
+
+    /// The prayer the menu bar shows as a gold label: its time began less than the chosen minutes
+    /// ago and the panel has not been opened since.
+    var prayerSignal: Prayer? {
+        if let until = signalPreviewUntil, now < until {
+            return upcoming?.prayer ?? .dhuhr
+        }
+        guard settings.prayerSignal,
+              let started = prayerClock.justStarted(day: day, now: now,
+                                                    duration: TimeInterval(settings.prayerSignalMinutes * 60)),
+              started.date != dismissedSignal else { return nil }
+        return started.prayer
+    }
+
+    /// Shows the gold label for the upcoming prayer for a while, to see what it looks like.
+    func previewPrayerSignal(seconds: TimeInterval) {
+        signalPreviewUntil = clock().addingTimeInterval(seconds)
+    }
+
+    /// Opening the panel ends the gold label, like it stops a playing sound.
+    func dismissPrayerSignal() {
+        signalPreviewUntil = nil
+        guard settings.prayerSignal,
+              let started = prayerClock.justStarted(day: day, now: now,
+                                                    duration: TimeInterval(settings.prayerSignalMinutes * 60))
+        else { return }
+        dismissedSignal = started.date
+    }
 
     /// The phase the menu bar shows in colour; `.normal` when colours are switched off.
     var menuBarPhase: CountdownPhase {

@@ -119,6 +119,8 @@
 "setup.color.pre1" = "Pre-Adhan 1 (%ld Min.)";
 "setup.color.pre2" = "Pre-Adhan 2 (%ld Min.)";
 "settings.colorPreAdhanHelp" = "Orange ab dem ersten Pre-Adhan (%1$ld Min.), rot ab dem zweiten (%2$ld Min.), wie in Nida eingestellt.";
+"settings.prayerSignal" = "Goldenes Label zur Gebetszeit";
+"settings.prayerSignalHelp" = "Beim Adhan wird der Countdown zu einem goldenen Label mit dem Namen des Gebets. Es erscheint auch, wenn ein Fokus die Mitteilung stummschaltet. Öffnen des Fensters beendet es.";
 "setup.away.title" = "Unterwegs";
 "setup.away.body" = "Unterwegs richten sich die Gebetszeiten nach deinem Standort, berechnet wie in Nida. macOS fragt nach deinem Standort: wähle Erlauben.";
 "settings.away" = "Unterwegs";

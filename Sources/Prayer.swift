@@ -96,6 +96,13 @@ struct UpcomingPrayer: Equatable {
 
 /// Finds the upcoming prayer and its phase. Pure logic.
 struct PrayerClock {
+    /// The prayer whose time began less than `duration` ago, with its time; nil otherwise.
+    func justStarted(day: PrayerDay, now: Date, duration: TimeInterval) -> (prayer: Prayer, date: Date)? {
+        Prayer.allCases.reversed().lazy
+            .compactMap { p in day.times[p].map { (prayer: p, date: $0) } }
+            .first { $0.date <= now && now.timeIntervalSince($0.date) < duration }
+    }
+
     func upcoming(day: PrayerDay, preAdhan: PreAdhanSettings, now: Date,
                   calendar: Calendar = .current) -> UpcomingPrayer? {
         let today = Prayer.allCases.compactMap { p in day.times[p].map { (prayer: p, date: $0) } }

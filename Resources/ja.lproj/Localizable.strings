@@ -119,6 +119,8 @@
 "setup.color.pre1" = "プレアザーン1（%ld分）";
 "setup.color.pre2" = "プレアザーン2（%ld分）";
 "settings.colorPreAdhanHelp" = "1回目のプレアザーン（%1$ld分）からオレンジ、2回目（%2$ld分）から赤。Nidaの設定に従います。";
+"settings.prayerSignal" = "礼拝時刻に金色のラベル";
+"settings.prayerSignalHelp" = "アザーンの時刻にカウントダウンが礼拝名入りの金色ラベルに変わります。集中モードで通知が消音されていても表示されます。パネルを開くと消えます。";
 "setup.away.title" = "外出中";
 "setup.away.body" = "外出中は現在地の礼拝時刻をNidaと同じ方法で計算します。macOSが位置情報を求めます。「許可」を選んでください。";
 "settings.away" = "外出中";

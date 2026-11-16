@@ -119,6 +119,8 @@
 "setup.color.pre1" = "礼拜前提醒 1（%ld 分钟）";
 "setup.color.pre2" = "礼拜前提醒 2（%ld 分钟）";
 "settings.colorPreAdhanHelp" = "第一次礼拜前提醒（%1$ld 分钟）起为橙色，第二次（%2$ld 分钟）起为红色，按 Nida 中的设置。";
+"settings.prayerSignal" = "礼拜时间显示金色标签";
+"settings.prayerSignalHelp" = "宣礼时，倒计时会变为带有礼拜名称的金色标签。即使专注模式将通知静音也会显示。打开面板即结束。";
 "setup.away.title" = "不在家时";
 "setup.away.body" = "不在家时，礼拜时间按你所在位置计算，方法与 Nida 相同。macOS 会请求你的位置：选择“允许”。";
 "settings.away" = "不在家时";

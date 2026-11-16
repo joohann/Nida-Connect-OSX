@@ -20,7 +20,11 @@ struct MenuView: View {
         .rotation3DEffect(.degrees(angle), axis: (x: 0, y: 1, z: 0), perspective: 0.4)
         .environment(\.layoutDirection, l.isRightToLeft ? .rightToLeft : .leftToRight)
         // A click on the menu bar while a sound plays stops it: opening the panel is that click.
-        .onAppear { model.stopSound() }
+        // The same click ends the gold prayer label.
+        .onAppear {
+            model.stopSound()
+            model.dismissPrayerSignal()
+        }
         // Closing the panel turns the card back to the front, so it always opens on the prayer.
         .background(PanelCloseObserver {
             showsSettings = false

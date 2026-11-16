@@ -119,6 +119,8 @@
 "setup.color.pre1" = "Ezan öncesi 1 (%ld dk)";
 "setup.color.pre2" = "Ezan öncesi 2 (%ld dk)";
 "settings.colorPreAdhanHelp" = "Birinci ezan öncesinden (%1$ld dk) itibaren turuncu, ikinciden (%2$ld dk) itibaren kırmızı; Nida’daki ayara göre.";
+"settings.prayerSignal" = "Namaz vaktinde altın etiket";
+"settings.prayerSignalHelp" = "Ezan vaktinde geri sayım, namazın adını taşıyan altın bir etikete dönüşür. Odak bildirimi sessize alsa da görünür. Paneli açmak onu kapatır.";
 "setup.away.title" = "Ev dışında";
 "setup.away.body" = "Ev dışında vakitler bulunduğunuz yere göre, Nida’daki gibi hesaplanır. macOS konumunuzu isteyecek: İzin Ver’i seçin.";
 "settings.away" = "Ev dışında";

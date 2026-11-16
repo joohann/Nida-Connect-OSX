@@ -119,6 +119,8 @@
 "setup.color.pre1" = "Pré-adhan 1 (%ld min)";
 "setup.color.pre2" = "Pré-adhan 2 (%ld min)";
 "settings.colorPreAdhanHelp" = "Orange dès le premier pré-adhan (%1$ld min), rouge dès le second (%2$ld min), comme réglé dans Nida.";
+"settings.prayerSignal" = "Étiquette dorée à l'heure de prière";
+"settings.prayerSignalHelp" = "À l'adhan, le compte à rebours devient une étiquette dorée avec le nom de la prière. Elle s'affiche aussi quand une concentration coupe la notification. Ouvrir le panneau la retire.";
 "setup.away.title" = "Hors de la maison";
 "setup.away.body" = "Hors de la maison, les horaires suivent l’endroit où vous êtes, calculés comme dans Nida. macOS demande votre position : choisissez Autoriser.";
 "settings.away" = "Hors de la maison";
