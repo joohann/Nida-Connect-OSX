@@ -1,8 +1,24 @@
 # Nida Connect
 
-![Nida Connect: the upcoming prayer in your Mac menu bar, connected to the Nida integration for Home Assistant](docs/showcase.png)
+<p align="center">
+  <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/joohann/Nida-Connect-OSX?label=release" alt="Latest release"></a>
+  <img src="https://img.shields.io/badge/macOS-13%2B-blue" alt="macOS 13 or later">
+  <img src="https://img.shields.io/badge/Apple%20silicon%20%26%20Intel-universal-blue" alt="Apple silicon and Intel">
+  <img src="https://img.shields.io/badge/languages-10-green" alt="10 languages">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="MIT license"></a>
+</p>
 
-The upcoming prayer from [Nida](https://github.com/joohann/Nida) (Home Assistant) in your macOS menu bar, with a live countdown.
+<p align="center">
+  English · Nederlands · Deutsch · Français · Español · 日本語 · 简体中文 · العربية · Türkçe · Bahasa Indonesia
+</p>
+
+A tiny macOS menu bar app that shows the **upcoming prayer** with a live countdown. It connects to the **[Nida](https://github.com/joohann/Nida) integration for Home Assistant** and uses its prayer times and settings. It can notify you at the pre-adhan and the adhan, shows a **gold label at prayer time**, and plays the adhan on your Mac when you are away from home.
+
+<p align="center">
+  <img src="docs/showcase.png" width="760" alt="Nida Connect: the upcoming prayer in your Mac menu bar, connected to the Nida integration for Home Assistant">
+</p>
+
+## Features
 
 - Menu bar: `02:14`, under an hour `47:09`; orange at the first pre-adhan, red at the second, a gold label with the prayer's name at prayer time. Icon and prayer name are optional.
 - Panel: countdown, today's prayer times, hijri date. Settings on the back of the card.
