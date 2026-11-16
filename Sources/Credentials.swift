@@ -5,8 +5,8 @@ import Security
 struct ServerAddress: Equatable {
     let baseURL: URL
 
-    /// Accepts "https://ha.example.nl", "http://192.168.1.10:8123" or an address without scheme.
-    /// Without scheme, a local address ("homeassistant.local:8123", an IP, a bare name) gets http,
+    /// Accepts "https://ha.example.nl", "http://192.168.1.10" or an address without scheme.
+    /// Without scheme, a local address ("homeassistant.local", an IP, a bare name) gets http,
     /// like a default Home Assistant install; anything else gets https.
     init?(_ text: String) {
         var s = text.trimmingCharacters(in: .whitespacesAndNewlines)

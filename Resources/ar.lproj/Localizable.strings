@@ -46,12 +46,12 @@
 "settings.notifyUpdate" = "الإشعار بالتحديثات";
 "settings.version" = "الإصدار %@";
 "settings.server" = "الخادم";
-"settings.serverPlaceholder" = "http://homeassistant.local:8123";
+"settings.serverPlaceholder" = "http://homeassistant.local";
 "settings.tokenKeep" = "الإبقاء على الرمز الحالي";
 "settings.tokenPlaceholder" = "رمز وصول طويل الأمد";
 "settings.tokenHelp" = "أنشئ رمزًا في Home Assistant من ملفك الشخصي، الأمان، رموز الوصول طويلة الأمد. يُحفظ في سلسلة المفاتيح.";
 "settings.insecure" = "هذا الاتصال غير مشفّر. استخدم https خارج شبكتك المنزلية.";
-"settings.invalidServer" = "أدخل عنوانًا صالحًا مثل http://homeassistant.local:8123.";
+"settings.invalidServer" = "أدخل عنوانًا صالحًا مثل http://homeassistant.local.";
 "settings.saveFailed" = "تعذّر حفظ الاتصال.";
 "notify.at" = "الساعة %@";
 "notify.soon.title" = "%1$@ بعد %2$ld د";

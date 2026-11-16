@@ -46,12 +46,12 @@
 "settings.notifyUpdate" = "アップデートを通知";
 "settings.version" = "バージョン%@";
 "settings.server" = "サーバ";
-"settings.serverPlaceholder" = "http://homeassistant.local:8123";
+"settings.serverPlaceholder" = "http://homeassistant.local";
 "settings.tokenKeep" = "現在のトークンを使用";
 "settings.tokenPlaceholder" = "長期アクセストークン";
 "settings.tokenHelp" = "Home Assistantのプロフィール、セキュリティ、長期アクセストークンでトークンを作成してください。キーチェーンに保存されます。";
 "settings.insecure" = "この接続は暗号化されていません。自宅のネットワーク外ではhttpsを使用してください。";
-"settings.invalidServer" = "http://homeassistant.local:8123 のような有効なアドレスを入力してください。";
+"settings.invalidServer" = "http://homeassistant.local のような有効なアドレスを入力してください。";
 "settings.saveFailed" = "接続を保存できませんでした。";
 "notify.at" = "%@";
 "notify.soon.title" = "%2$ld分後に%1$@";

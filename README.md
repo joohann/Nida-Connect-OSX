@@ -16,7 +16,7 @@ The upcoming prayer from [Nida](https://github.com/joohann/Nida) (Home Assistant
 
 ## Setup
 
-Click the moon in the menu bar, enter your Home Assistant address (for example `http://homeassistant.local:8123`) and the token, then **Connect**. The token is stored in the Keychain. Use https outside your home network.
+At first launch a short setup opens. The app finds Home Assistant on your network by itself; otherwise enter the address (for example `http://homeassistant.local`). Then sign in with Home Assistant's own login page, or use a long-lived access token. Credentials are stored in the Keychain. Use https outside your home network.
 
 The app reads Nida's sensors through the entity registry, so renamed entities keep working, and reads the pre-adhan minutes from Nida's settings.
 

@@ -46,12 +46,12 @@
 "settings.notifyUpdate" = "有更新时通知";
 "settings.version" = "版本 %@";
 "settings.server" = "服务器";
-"settings.serverPlaceholder" = "http://homeassistant.local:8123";
+"settings.serverPlaceholder" = "http://homeassistant.local";
 "settings.tokenKeep" = "保留当前令牌";
 "settings.tokenPlaceholder" = "长期访问令牌";
 "settings.tokenHelp" = "在 Home Assistant 的个人资料、安全、长期访问令牌中创建令牌。令牌保存在钥匙串中。";
 "settings.insecure" = "此连接未加密。在家庭网络之外请使用 https。";
-"settings.invalidServer" = "请输入有效地址，例如 http://homeassistant.local:8123。";
+"settings.invalidServer" = "请输入有效地址，例如 http://homeassistant.local。";
 "settings.saveFailed" = "无法保存连接。";
 "notify.at" = "%@";
 "notify.soon.title" = "%2$ld 分钟后%1$@";

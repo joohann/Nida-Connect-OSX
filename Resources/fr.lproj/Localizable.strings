@@ -46,12 +46,12 @@
 "settings.notifyUpdate" = "Notifier les mises à jour";
 "settings.version" = "Version %@";
 "settings.server" = "Serveur";
-"settings.serverPlaceholder" = "http://homeassistant.local:8123";
+"settings.serverPlaceholder" = "http://homeassistant.local";
 "settings.tokenKeep" = "Garder le jeton actuel";
 "settings.tokenPlaceholder" = "Jeton d’accès longue durée";
 "settings.tokenHelp" = "Créez un jeton dans Home Assistant via votre profil, Sécurité, Jetons d’accès longue durée. Il est stocké dans le trousseau.";
 "settings.insecure" = "Cette connexion n’est pas chiffrée. Utilisez https hors de votre réseau domestique.";
-"settings.invalidServer" = "Saisissez une adresse valide, comme http://homeassistant.local:8123.";
+"settings.invalidServer" = "Saisissez une adresse valide, comme http://homeassistant.local.";
 "settings.saveFailed" = "Impossible d’enregistrer la connexion.";
 "notify.at" = "À %@";
 "notify.soon.title" = "%1$@ dans %2$ld min";

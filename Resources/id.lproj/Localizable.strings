@@ -46,12 +46,12 @@
 "settings.notifyUpdate" = "Beri tahu pembaruan";
 "settings.version" = "Versi %@";
 "settings.server" = "Server";
-"settings.serverPlaceholder" = "http://homeassistant.local:8123";
+"settings.serverPlaceholder" = "http://homeassistant.local";
 "settings.tokenKeep" = "Pertahankan token saat ini";
 "settings.tokenPlaceholder" = "Token akses jangka panjang";
 "settings.tokenHelp" = "Buat token di Home Assistant melalui profil, Keamanan, Token akses jangka panjang. Token disimpan di Rantai Kunci.";
 "settings.insecure" = "Koneksi ini tidak terenkripsi. Gunakan https di luar jaringan rumah.";
-"settings.invalidServer" = "Masukkan alamat yang valid, seperti http://homeassistant.local:8123.";
+"settings.invalidServer" = "Masukkan alamat yang valid, seperti http://homeassistant.local.";
 "settings.saveFailed" = "Koneksi tidak dapat disimpan.";
 "notify.at" = "Pukul %@";
 "notify.soon.title" = "%1$@ dalam %2$ld mnt";

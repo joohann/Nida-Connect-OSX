@@ -46,12 +46,12 @@
 "settings.notifyUpdate" = "Güncellemeleri bildir";
 "settings.version" = "Sürüm %@";
 "settings.server" = "Sunucu";
-"settings.serverPlaceholder" = "http://homeassistant.local:8123";
+"settings.serverPlaceholder" = "http://homeassistant.local";
 "settings.tokenKeep" = "Mevcut belirteci koru";
 "settings.tokenPlaceholder" = "Uzun ömürlü erişim belirteci";
 "settings.tokenHelp" = "Home Assistant’ta profilinizden, Güvenlik, Uzun ömürlü erişim belirteçleri bölümünden bir belirteç oluşturun. Anahtar Zinciri’nde saklanır.";
 "settings.insecure" = "Bu bağlantı şifreli değil. Ev ağınızın dışında https kullanın.";
-"settings.invalidServer" = "http://homeassistant.local:8123 gibi geçerli bir adres girin.";
+"settings.invalidServer" = "http://homeassistant.local gibi geçerli bir adres girin.";
 "settings.saveFailed" = "Bağlantı kaydedilemedi.";
 "notify.at" = "Saat %@";
 "notify.soon.title" = "%2$ld dk sonra %1$@";

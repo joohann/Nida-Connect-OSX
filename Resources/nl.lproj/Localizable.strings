@@ -46,12 +46,12 @@
 "settings.notifyUpdate" = "Melding bij update";
 "settings.version" = "Versie %@";
 "settings.server" = "Server";
-"settings.serverPlaceholder" = "http://homeassistant.local:8123";
+"settings.serverPlaceholder" = "http://homeassistant.local";
 "settings.tokenKeep" = "Huidig token behouden";
 "settings.tokenPlaceholder" = "Long-lived access token";
 "settings.tokenHelp" = "Maak een token in Home Assistant via je profiel, Beveiliging, Langlevende toegangstokens. Het wordt bewaard in de Sleutelhanger.";
 "settings.insecure" = "Deze verbinding is niet versleuteld. Gebruik https buiten je thuisnetwerk.";
-"settings.invalidServer" = "Vul een geldig adres in, zoals http://homeassistant.local:8123.";
+"settings.invalidServer" = "Vul een geldig adres in, zoals http://homeassistant.local.";
 "settings.saveFailed" = "Verbinding kon niet worden bewaard.";
 "notify.at" = "Om %@";
 "notify.soon.title" = "%1$@ over %2$ld min";
