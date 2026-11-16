@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.3.0
+
+### New
+
+- **Setup that asks questions.** Each step asks one thing and picks the settings for you: how you want to see the time, how you want to be alerted, and whether this Mac plays the adhan. A Change button in the settings opens the setup at the right step.
+- **Five menu bar styles.** Icon only (Nida's mosque, nothing else), Prayer time (the time of the next prayer, such as `15:42`), Compact (the countdown), With name and Precise (with seconds). Pick one in the setup or from the Style menu in the settings.
+- **Nida's voice in your language.** Standalone, the pre-adhan jingle is now the voiced Nida jingle in the app's language (English when there is none). Any other jingle from the library can still be chosen.
+
+### Changed
+
+- **Shorter settings.** About ten rows: source, menu bar style, alerts, notifications, sound and general. Everything else (calculation method, pre-adhan per prayer, each sound and volume, seconds, blinking colon, separate notifications) is under Advanced, folded away.
+- **One voice for the adhan.** Standalone, choosing the adhan voice also picks the Fajr adhan by the same reciter when the library has one.
+
 ## 1.2.0
 
 ### New
