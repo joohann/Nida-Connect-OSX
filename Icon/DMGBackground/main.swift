@@ -144,7 +144,7 @@ private func render(scale: CGFloat, title: String) -> Data {
 
 let args = CommandLine.arguments
 guard args.count == 4 else {
-    FileHandle.standardError.write("gebruik: dmg-background <naam> <out.png> <out@2x.png>\n".data(using: .utf8)!)
+    FileHandle.standardError.write("usage: dmg-background <name> <out.png> <out@2x.png>\n".data(using: .utf8)!)
     exit(1)
 }
 try! render(scale: 1, title: args[1]).write(to: URL(fileURLWithPath: args[2]))

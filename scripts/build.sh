@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Bouwt de .app uit config.json (enige plek voor naam, bundle-id en versie).
+# Builds the .app from config.json (the only place for name, bundle id and version).
 #   scripts/build.sh            -> build/<appName>.app
-#   scripts/build.sh install    -> ook kopiëren naar /Applications en starten
+#   scripts/build.sh install    -> also copy to /Applications and launch
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -14,16 +14,16 @@ MIN_OS=$(cfg minimumMacOS)
 PUBLIC_KEY=$(cfg update.publicKey)
 LSREGISTER=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
 
-# .env afleiden uit config.json, zodat er één bron is.
+# Derive .env from config.json, so there is one source.
 cat > .env <<ENV
-# Gegenereerd uit config.json door scripts/build.sh. Niet handmatig wijzigen.
+# Generated from config.json by scripts/build.sh. Do not edit by hand.
 APP_NAME=$APP_NAME
 EXECUTABLE_NAME=$EXE
 BUNDLE_ID=$BUNDLE_ID
 VERSION=$VERSION
 ENV
 
-scripts/i18n.sh || echo "Let op: vertalingen niet compleet (valt terug op EN)."
+scripts/i18n.sh || echo "Note: translations incomplete (falls back to EN)."
 
 APP="build/$APP_NAME.app"
 rm -rf "$APP"
@@ -67,7 +67,7 @@ if [[ -n "$PUBLIC_KEY" ]]; then
   <key>SUAutomaticallyUpdate</key><false/>
   <key>SUScheduledCheckInterval</key><integer>$(cfg update.checkSeconds)</integer>"
 else
-  echo "Let op: update.publicKey in config.json is leeg, de updater staat uit in deze build."
+  echo "Note: update.publicKey in config.json is empty, the updater is off in this build."
 fi
 
 cat > "$APP/Contents/Info.plist" <<PLIST
@@ -108,7 +108,7 @@ for ITEM in "$FW/Versions/B/Autoupdate" "$FW/Versions/B/Updater.app" "$FW" "$APP
 done
 touch "$APP"
 "$LSREGISTER" -f "$APP" 2>/dev/null || true
-echo "Gebouwd: $APP ($(du -sh "$APP" | cut -f1))"
+echo "Built: $APP ($(du -sh "$APP" | cut -f1))"
 
 if [[ "${1:-}" == install ]]; then
   pkill -x "$EXE" 2>/dev/null || true
@@ -117,5 +117,5 @@ if [[ "${1:-}" == install ]]; then
   touch "/Applications/$APP_NAME.app"
   "$LSREGISTER" -f "/Applications/$APP_NAME.app" 2>/dev/null || true
   open "/Applications/$APP_NAME.app"
-  echo "Geïnstalleerd in /Applications en gestart."
+  echo "Installed in /Applications and launched."
 fi

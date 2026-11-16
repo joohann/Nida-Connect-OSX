@@ -26,7 +26,7 @@ sparkle_dir() {
       "https://github.com/sparkle-project/Sparkle/releases/download/$version/Sparkle-$version.tar.xz"
     if [[ $(shasum -a 256 "$archive" | cut -d' ' -f1) != "$sha" ]]; then
       rm -rf "$dir" "$archive"
-      echo "Sparkle $version: checksum klopt niet, gestopt." >&2
+      echo "Sparkle $version: checksum does not match, stopped." >&2
       return 1
     fi
     tar -xJf "$archive" -C "$dir"

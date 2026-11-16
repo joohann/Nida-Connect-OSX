@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Maakt een deelbare DMG: build/<executableName>-<versie>.dmg (met snelkoppeling naar /Applications).
-# Notariseert alleen als config.json een Developer ID en een notaryProfile bevat.
+# Builds a shareable DMG: build/<executableName>-<version>.dmg (with a link to /Applications).
+# Notarises only when config.json has a Developer ID and a notaryProfile.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -12,7 +12,7 @@ IDENTITY=$(cfg signing.identity)
 PROFILE=$(cfg signing.notaryProfile)
 
 scripts/build.sh
-[[ -n "$(cfg update.publicKey)" ]] || { echo "update.publicKey ontbreekt in config.json; zonder sleutel geen release." >&2; exit 1; }
+[[ -n "$(cfg update.publicKey)" ]] || { echo "update.publicKey is missing in config.json; no release without a key." >&2; exit 1; }
 APP="build/$APP_NAME.app"
 DMG="build/$EXE-$VERSION.dmg"
 STAGE=$(mktemp -d)
@@ -69,14 +69,14 @@ if [[ "$IDENTITY" == "Developer ID"* ]]; then
   fi
 fi
 
-echo "Pakket: $DMG ($(du -h "$DMG" | cut -f1))"
+echo "Package: $DMG ($(du -h "$DMG" | cut -f1))"
 
 # Appcast for Sparkle: the DMG is signed with the EdDSA key in the Keychain, then the feed itself.
 SPARKLE=$(sparkle_dir)
 ACCOUNT=$(cfg update.keyAccount)
 ENCLOSURE=$("$SPARKLE/bin/sign_update" --account "$ACCOUNT" "$DMG")
 NOTES=$(awk -v v="## $VERSION" '$0 == v {on=1; next} /^## / {on=0} on' CHANGELOG.md)
-[[ -n "$NOTES" ]] || { echo "CHANGELOG.md heeft geen sectie '## $VERSION'." >&2; exit 1; }
+[[ -n "$NOTES" ]] || { echo "CHANGELOG.md has no section '## $VERSION'." >&2; exit 1; }
 cat > appcast.xml <<XML
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
@@ -97,5 +97,5 @@ cat > appcast.xml <<XML
 </rss>
 XML
 "$SPARKLE/bin/sign_update" --account "$ACCOUNT" appcast.xml
-echo "Appcast: appcast.xml. Publiceer eerst de GitHub-release met de DMG, push daarna appcast.xml."
-[[ "$IDENTITY" != "Developer ID"* ]] && echo "Let op: niet genotariseerd. Ontvangers moeten de app eenmalig toestaan."
+echo "Appcast: appcast.xml. Publish the GitHub release with the DMG first, then push appcast.xml."
+[[ "$IDENTITY" != "Developer ID"* ]] && echo "Note: not notarised. Recipients must allow the app once."
