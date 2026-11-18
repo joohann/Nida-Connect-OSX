@@ -4,28 +4,21 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
   <channel>
     <title>Nida Connect</title>
     <item>
-      <title>Nida Connect 1.3.0</title>
-      <pubDate>Mon, 16 Nov 2026 19:28:58 +0000</pubDate>
-      <sparkle:version>1.3.0</sparkle:version>
-      <sparkle:shortVersionString>1.3.0</sparkle:shortVersionString>
+      <title>Nida Connect 1.3.1</title>
+      <pubDate>Wed, 18 Nov 2026 11:42:33 +0000</pubDate>
+      <sparkle:version>1.3.1</sparkle:version>
+      <sparkle:shortVersionString>1.3.1</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/joohann/Nida-Connect-OSX/releases/tag/v1.3.0</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/joohann/Nida-Connect-OSX/releases/tag/v1.3.1</sparkle:fullReleaseNotesLink>
       <description sparkle:format="markdown"><![CDATA[
 ### New
 
-- **Setup that asks questions.** Each step asks one thing and picks the settings for you: how you want to see the time, how you want to be alerted, and whether this Mac plays the adhan. A Change button in the settings opens the setup at the right step.
-- **Five menu bar styles.** Icon only (Nida's mosque, nothing else), Prayer time (the time of the next prayer, such as `15:42`), Compact (the countdown), With name and Precise (with seconds). Pick one in the setup or from the Style menu in the settings.
-- **Nida's voice in your language.** Standalone, the pre-adhan jingle is now the voiced Nida jingle in the app's language (English when there is none). Any other jingle from the library can still be chosen.
-
-### Changed
-
-- **Shorter settings.** About ten rows: source, menu bar style, alerts, notifications, sound and general. Everything else (calculation method, pre-adhan per prayer, each sound and volume, seconds, blinking colon, separate notifications) is under Advanced, folded away.
-- **One voice for the adhan.** Standalone, choosing the adhan voice also picks the Fajr adhan by the same reciter when the library has one.
+- **Music pauses for the adhan.** While your Mac plays the pre-adhan or the adhan, music and video in other apps pause, browsers included, and continue when it ends or when you press Stop. Only what the app paused itself is resumed, so nothing starts that was not playing. On by default; switch it off with Pause music under Sound and notifications.
 ]]></description>
-      <enclosure url="https://github.com/joohann/Nida-Connect-OSX/releases/download/v1.3.0/NidaConnect-1.3.0.dmg" type="application/octet-stream" sparkle:edSignature="8xFOfVvw1ErRyiH7PfqMr+Zkg3iPB7ZAgEawrOGt33Kwp1X9R9UmjgP44x8AxulsGzfskcXn65M5/yf1ddf9AA==" length="3811509"></enclosure>
+      <enclosure url="https://github.com/joohann/Nida-Connect-OSX/releases/download/v1.3.1/NidaConnect-1.3.1.dmg" type="application/octet-stream" sparkle:edSignature="gsqfv8W8ENBbFWwXHDJKE3UQTy1bneT1BSGXj/YtlWoTnJ9/9xsZZlbBRZeqPt9bgPSlTjxQrhzpiRttSUeLBg==" length="3821361"></enclosure>
     </item>
   </channel>
 </rss><!-- sparkle-signatures:
-edSignature: bWSH7xyYVqno30oQSLhU+4QQljE803IWD9h7ZeoWD9Mx53JYOAz5SE7IbEG67yHLCh+4NyFMoJLwtgCYyb7WCg==
-length: 2387
+edSignature: M0SGPRSKTNWESB0jCM1KcBsi8gOgpbyOzIORq/WsbR15Niw5XpNb53o6Aenjvs/BRUWpI3FLVSP7V1J0b0LACw==
+length: 1600
 -->
