@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.1
+
+### New
+
+- **Music pauses for the adhan.** While your Mac plays the pre-adhan or the adhan, music and video in other apps pause, browsers included, and continue when it ends or when you press Stop. Only what the app paused itself is resumed, so nothing starts that was not playing. On by default; switch it off with Pause music under Sound and notifications.
+
 ## 1.3.0
 
 ### New
