@@ -88,6 +88,9 @@ final class PrayerModel: ObservableObject {
     private var settingsTask: Task<Void, Never>?
     /// The app's language code, for the voiced Nida jingle.
     private let language: String
+    private let media: MediaPausing?
+    /// True while other media is paused for our sound, so only our own pause gets resumed.
+    private var pausedMedia = false
 
     init(config: AppConfig, source: NidaSource, credentials: CredentialStoring,
          makeLogin: @escaping () -> LoopbackLogin, openURL: @escaping (URL) -> Void = { NSWorkspace.shared.open($0) },
@@ -96,7 +99,7 @@ final class PrayerModel: ObservableObject {
          updater: UpdateManaging? = nil, discovery: ServerDiscovering? = nil,
          sounds: SoundCaching? = nil, player: SoundPlaying? = nil,
          location: LocationProviding? = nil, aladhan: AladhanClient? = nil,
-         soundCatalog: SoundCatalogLoading? = nil, language: String = "en",
+         soundCatalog: SoundCatalogLoading? = nil, language: String = "en", media: MediaPausing? = nil,
          clock: @escaping () -> Date = Date.init) {
         self.config = config
         self.source = source
@@ -115,6 +118,7 @@ final class PrayerModel: ObservableObject {
         self.aladhan = aladhan
         self.soundCatalog = soundCatalog
         self.language = language
+        self.media = media
         self.standalone = preferences.standalone ?? StandaloneSettings()
         let calc = preferences.lastCalculation ?? .nidaDefault
         self.method = calc.method
@@ -474,7 +478,10 @@ final class PrayerModel: ObservableObject {
         updater.onUpdateFound = { [weak self] version in self?.updateFound(version) }
         updater.onUpdateHandled = { [weak self] in self?.availableUpdate = nil }
         notifier.onStop = { [weak self] in self?.stopSound() }
-        player?.onFinish = { [weak self] in self?.playing = nil }
+        player?.onFinish = { [weak self] in
+            self?.playing = nil
+            self?.resumeMedia()
+        }
         notifier.onOpen = { [weak self] id in
             if id == NotificationPlanner.updateId { self?.checkForUpdates() }
         }
@@ -640,6 +647,7 @@ final class PrayerModel: ObservableObject {
     func stopSound() {
         player?.stop()
         playing = nil
+        resumeMedia()
     }
 
     /// Plays Nida's own file at Nida's own volume, from the local copy.
@@ -648,7 +656,18 @@ final class PrayerModel: ObservableObject {
             Log.connection.info("sound not available locally")
             return
         }
-        if player.play(url, volume: sound.volume) { playing = sound }
+        if settings.pauseMedia && !pausedMedia, let media { pausedMedia = media.pauseIfPlaying() }
+        if player.play(url, volume: sound.volume) {
+            playing = sound
+        } else {
+            resumeMedia()
+        }
+    }
+
+    private func resumeMedia() {
+        guard pausedMedia else { return }
+        pausedMedia = false
+        media?.resume()
     }
 
     /// Plays the pre-adhan jingle once, to check the volume.

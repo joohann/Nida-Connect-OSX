@@ -234,3 +234,5 @@
 "style.time" = "Namaz vakti";
 "style.time.body" = "Bir sonraki namazın saati, örneğin 15:42.";
 "style.time.short" = "Saat";
+"settings.pauseMedia" = "Müziği duraklat";
+"settings.pauseMediaHelp" = "Ezan öncesi veya ezan çalarken diğer uygulamalardaki müzik ve video duraklar, sonra devam eder.";

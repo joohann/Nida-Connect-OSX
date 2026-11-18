@@ -234,3 +234,5 @@
 "style.time" = "Gebetszeit";
 "style.time.body" = "Die Uhrzeit des nächsten Gebets, etwa 15:42.";
 "style.time.short" = "Uhrzeit";
+"settings.pauseMedia" = "Musik pausieren";
+"settings.pauseMediaHelp" = "Während Pre-Adhan oder Adhan pausieren Musik und Video in anderen Apps und laufen danach weiter.";

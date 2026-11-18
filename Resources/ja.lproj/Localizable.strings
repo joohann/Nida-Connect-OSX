@@ -234,3 +234,5 @@
 "style.time" = "礼拝時刻";
 "style.time.body" = "次の礼拝の時刻（例：15:42）。";
 "style.time.short" = "時刻";
+"settings.pauseMedia" = "音楽を一時停止";
+"settings.pauseMediaHelp" = "プレ・アザーンやアザーンの再生中は、他のアプリの音楽や動画を一時停止し、その後再開します。";

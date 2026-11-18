@@ -234,3 +234,5 @@
 "style.time" = "Heure de prière";
 "style.time.body" = "L'heure de la prochaine prière, par exemple 15:42.";
 "style.time.short" = "Heure";
+"settings.pauseMedia" = "Mettre la musique en pause";
+"settings.pauseMediaHelp" = "Pendant le pré-adhan ou l'adhan, la musique et la vidéo des autres apps se mettent en pause puis reprennent.";

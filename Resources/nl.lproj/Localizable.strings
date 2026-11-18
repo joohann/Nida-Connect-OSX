@@ -234,3 +234,5 @@
 "style.time" = "Gebedstijd";
 "style.time.body" = "Het tijdstip van het volgende gebed, zoals 15:42.";
 "style.time.short" = "Tijd";
+"settings.pauseMedia" = "Muziek pauzeren";
+"settings.pauseMediaHelp" = "Tijdens de pre-adhan of de adhan pauzeren muziek en video in andere apps en gaan daarna verder.";

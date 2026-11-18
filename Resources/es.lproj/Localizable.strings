@@ -234,3 +234,5 @@
 "style.time" = "Hora de oración";
 "style.time.body" = "La hora de la próxima oración, como 15:42.";
 "style.time.short" = "Hora";
+"settings.pauseMedia" = "Pausar la música";
+"settings.pauseMediaHelp" = "Durante el pre-adhan o el adhan, la música y el vídeo de otras apps se pausan y luego continúan.";

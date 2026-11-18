@@ -234,3 +234,5 @@
 "style.time" = "礼拜时间";
 "style.time.body" = "下次礼拜的时间，例如 15:42。";
 "style.time.short" = "时间";
+"settings.pauseMedia" = "暂停音乐";
+"settings.pauseMediaHelp" = "播放预宣礼或宣礼时，其他应用中的音乐和视频会暂停，之后继续播放。";

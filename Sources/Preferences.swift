@@ -23,6 +23,8 @@ struct AppSettings: Equatable {
     static let prayerSignalChoices = [1, 5, 10, 15]
     // Sound
     var playbackMode: PlaybackMode = .away
+    /// Pause other media while the pre-adhan or the adhan plays, and resume it after.
+    var pauseMedia = true
     // Notifications
     var notifyPreAdhan1 = true
     var notifyPreAdhan2 = true
@@ -73,6 +75,7 @@ final class UserDefaultsPreferences: PreferencesStoring {
         ("notifyPreAdhan1", \.notifyPreAdhan1),
         ("notifyPreAdhan2", \.notifyPreAdhan2),
         ("notifyAtPrayer", \.notifyAtPrayer),
+        ("pauseMedia", \.pauseMedia),
         ("checkForUpdates", \.checkForUpdates),
         ("notifyUpdate", \.notifyUpdate),
     ]

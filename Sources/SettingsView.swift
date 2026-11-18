@@ -87,6 +87,14 @@ struct SettingsView: View {
                         .controlSize(.small)
                     }
                 }
+                SettingsDivider()
+                let playsHere = model.isStandalone ? model.standalone.playSounds : model.settings.playbackMode != .off
+                SettingsRow(symbol: "pause.circle", tint: .pink, title: l.t("settings.pauseMedia")) {
+                    SettingsSwitch(isOn: binding(\.pauseMedia))
+                }
+                .help(l.t("settings.pauseMediaHelp"))
+                .disabled(!playsHere)
+                .opacity(playsHere ? 1 : 0.5)
             }
             if model.notificationsDenied && model.settings.wantsNotifications {
                 Text(l.t("settings.notificationsDenied")).font(.caption).foregroundStyle(.orange)

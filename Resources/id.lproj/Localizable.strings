@@ -234,3 +234,5 @@
 "style.time" = "Waktu salat";
 "style.time.body" = "Jam salat berikutnya, misalnya 15:42.";
 "style.time.short" = "Jam";
+"settings.pauseMedia" = "Jeda musik";
+"settings.pauseMediaHelp" = "Selama pra-azan atau azan, musik dan video di aplikasi lain dijeda lalu dilanjutkan.";
