@@ -22,7 +22,7 @@ struct MenuView: View {
         // A click on the menu bar while a sound plays stops it: opening the panel is that click.
         // The same click ends the gold prayer label.
         .onAppear {
-            model.stopSound()
+            model.stopSound(reason: .panel)
             model.dismissPrayerSignal()
         }
         // Closing the panel turns the card back to the front, so it always opens on the prayer.
@@ -58,7 +58,7 @@ struct PrayerFront: View {
                              l.t(sound.prayer.localizationKey)))
                         .font(.callout)
                     Spacer()
-                    Button(l.t("action.stop"), action: model.stopSound).controlSize(.small)
+                    Button(l.t("action.stop"), action: { model.stopSound(reason: .stopButton) }).controlSize(.small)
                 }
                 .padding(8)
                 .background(RoundedRectangle(cornerRadius: 8).fill(Color.accentColor.opacity(0.1)))

@@ -477,10 +477,12 @@ final class PrayerModel: ObservableObject {
         updater.automaticallyChecks = settings.checkForUpdates
         updater.onUpdateFound = { [weak self] version in self?.updateFound(version) }
         updater.onUpdateHandled = { [weak self] in self?.availableUpdate = nil }
-        notifier.onStop = { [weak self] in self?.stopSound() }
+        notifier.onStop = { [weak self] in self?.stopSound(reason: .notification) }
         player?.onFinish = { [weak self] in
-            self?.playing = nil
-            self?.resumeMedia()
+            guard let self else { return }
+            Log.sound.notice("finished after \(self.secondsPlayed, privacy: .public) s")
+            self.playing = nil
+            self.resumeMedia()
         }
         notifier.onOpen = { [weak self] id in
             if id == NotificationPlanner.updateId { self?.checkForUpdates() }
@@ -644,22 +646,42 @@ final class PrayerModel: ObservableObject {
         }
     }
 
-    func stopSound() {
+    /// Why a sound was stopped early, for the log.
+    enum StopReason: String {
+        case panel, notification, test, stopButton
+    }
+
+    func stopSound(reason: StopReason) {
+        guard playing != nil else { return }
+        Log.sound.notice("stopped by \(reason.rawValue, privacy: .public) after \(self.secondsPlayed, privacy: .public) s")
         player?.stop()
         playing = nil
         resumeMedia()
     }
 
+    private var soundStarted: Date?
+    private var secondsPlayed: Int { Int((soundStarted.map { clock().timeIntervalSince($0) } ?? 0).rounded()) }
+
     /// Plays Nida's own file at Nida's own volume, from the local copy.
     func play(_ sound: PlannedSound) {
         guard let player, let url = sounds?.localURL(for: sound.file) else {
-            Log.connection.info("sound not available locally")
+            Log.sound.notice("not available locally: \(sound.file, privacy: .public)")
             return
         }
-        if settings.pauseMedia && !pausedMedia, let media { pausedMedia = media.pauseIfPlaying() }
+        if playing != nil { Log.sound.notice("replaced after \(self.secondsPlayed, privacy: .public) s") }
+        if settings.pauseMedia && !pausedMedia, let media {
+            pausedMedia = media.pauseIfPlaying()
+            Log.sound.notice("other media \(self.pausedMedia ? "paused" : "not playing", privacy: .public)")
+        }
         if player.play(url, volume: sound.volume) {
             playing = sound
+            soundStarted = clock()
+            Log.sound.notice("""
+                started \(String(describing: sound.kind), privacy: .public) for \(sound.prayer.rawValue, privacy: .public): \
+                \(sound.file, privacy: .public) at \(sound.volume, privacy: .public)%
+                """)
         } else {
+            Log.sound.notice("could not play \(sound.file, privacy: .public)")
             resumeMedia()
         }
     }
@@ -668,11 +690,12 @@ final class PrayerModel: ObservableObject {
         guard pausedMedia else { return }
         pausedMedia = false
         media?.resume()
+        Log.sound.notice("other media resumed")
     }
 
     /// Plays the pre-adhan jingle once, to check the volume.
     func testSound() {
-        if playing != nil { stopSound(); return }
+        if playing != nil { stopSound(reason: .test); return }
         guard let prayer = upcoming?.prayer ?? Prayer.allCases.first else { return }
         play(PlannedSound(prayer: prayer, kind: .preAdhan, file: audio.sounds[.preAdhanJingle] ?? "",
                           volume: audio.volumes[.preAdhanJingle] ?? 20))
