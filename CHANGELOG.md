@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **Paused music stays paused.** After the pre-adhan or the adhan, the app could start music that was not playing, because Music and Safari keep their audio output open while paused. Music and Spotify now report whether they play, other apps only count once they really go quiet after the pause, and only that is resumed.
+
 ## 1.3.1
 
 ### New
