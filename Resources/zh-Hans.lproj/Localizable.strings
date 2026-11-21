@@ -122,6 +122,11 @@
 "settings.colorPreAdhanHelp" = "第一次礼拜前提醒（%1$ld 分钟）起为橙色，第二次（%2$ld 分钟）起为红色，按 Nida 中的设置。";
 "settings.prayerSignal" = "礼拜时间显示金色标签";
 "settings.prayerSignalHelp" = "宣礼时，倒计时会变为带有礼拜名称的金色标签。即使专注模式将通知静音也会显示。打开面板即结束。";
+"settings.prayerCurtain" = "礼拜时的帘幕";
+"settings.prayerCurtainHelp" = "宣礼时，深色帘幕会盖住每块屏幕。按住 ⌘ + Esc 2 秒即可打开；20 分钟后会自动打开。";
+"curtain.title" = "礼拜时间到了";
+"curtain.hint" = "按住 ⌘ + Esc 2 秒以打开";
+"curtain.opensAt" = "将于 %@ 自动打开";
 "setup.away.title" = "不在家时";
 "setup.away.body" = "不在家时，礼拜时间按你所在位置计算，方法与 Nida 相同。macOS 会请求你的位置：选择“允许”。";
 "settings.away" = "不在家时";

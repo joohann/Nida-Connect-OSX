@@ -122,6 +122,11 @@
 "settings.colorPreAdhanHelp" = "1回目のプレアザーン（%1$ld分）からオレンジ、2回目（%2$ld分）から赤。Nidaの設定に従います。";
 "settings.prayerSignal" = "礼拝時刻に金色のラベル";
 "settings.prayerSignalHelp" = "アザーンの時刻にカウントダウンが礼拝名入りの金色ラベルに変わります。集中モードで通知が消音されていても表示されます。パネルを開くと消えます。";
+"settings.prayerCurtain" = "礼拝時のカーテン";
+"settings.prayerCurtainHelp" = "アザーンの時刻に、暗いカーテンがすべての画面を覆います。⌘ + Esc を2秒間押し続けると開きます。20分後には自動で開きます。";
+"curtain.title" = "礼拝の時間です";
+"curtain.hint" = "⌘ + Esc を2秒間押し続けて開く";
+"curtain.opensAt" = "%@ に自動で開きます";
 "setup.away.title" = "外出中";
 "setup.away.body" = "外出中は現在地の礼拝時刻をNidaと同じ方法で計算します。macOSが位置情報を求めます。「許可」を選んでください。";
 "settings.away" = "外出中";

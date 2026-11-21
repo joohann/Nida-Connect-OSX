@@ -122,6 +122,11 @@
 "settings.colorPreAdhanHelp" = "Oranje vanaf de eerste pre-adhan (%1$ld min), rood vanaf de tweede (%2$ld min), zoals ingesteld in Nida.";
 "settings.prayerSignal" = "Gouden label bij gebedstijd";
 "settings.prayerSignalHelp" = "Bij de adhan wordt de countdown een gouden label met de naam van het gebed. Het verschijnt ook als een focus de melding dempt. Het paneel openen beëindigt het.";
+"settings.prayerCurtain" = "Gordijn bij het gebed";
+"settings.prayerCurtainHelp" = "Bij de adhan gaat er een donker gordijn over elk scherm. Houd ⌘ + Esc 2 seconden vast om het te openen; na 20 minuten gaat het vanzelf open.";
+"curtain.title" = "Het is tijd om te bidden";
+"curtain.hint" = "Houd ⌘ + Esc 2 seconden vast om te openen";
+"curtain.opensAt" = "Gaat vanzelf open om %@";
 "setup.away.title" = "Buitenshuis";
 "setup.away.body" = "Buiten de deur volgen de gebedstijden waar je bent, berekend zoals Nida dat doet. macOS vraagt om je locatie: kies Sta toe.";
 "settings.away" = "Buitenshuis";

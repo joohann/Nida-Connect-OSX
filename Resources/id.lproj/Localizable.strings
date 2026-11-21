@@ -122,6 +122,11 @@
 "settings.colorPreAdhanHelp" = "Oranye sejak pra-azan pertama (%1$ld mnt), merah sejak yang kedua (%2$ld mnt), sesuai pengaturan Nida.";
 "settings.prayerSignal" = "Label emas saat waktu salat";
 "settings.prayerSignalHelp" = "Saat azan, hitung mundur berubah menjadi label emas dengan nama salat. Label tetap muncul saat Fokus membisukan notifikasi. Membuka panel mengakhirinya.";
+"settings.prayerCurtain" = "Tirai saat waktu salat";
+"settings.prayerCurtainHelp" = "Saat azan, tirai gelap menutup setiap layar. Tahan ⌘ + Esc selama 2 detik untuk membukanya; tirai terbuka sendiri setelah 20 menit.";
+"curtain.title" = "Waktunya salat";
+"curtain.hint" = "Tahan ⌘ + Esc selama 2 detik untuk membuka";
+"curtain.opensAt" = "Terbuka sendiri pukul %@";
 "setup.away.title" = "Di luar rumah";
 "setup.away.body" = "Di luar rumah, jadwal salat mengikuti lokasi Anda, dihitung seperti Nida. macOS meminta lokasi Anda: pilih Izinkan.";
 "settings.away" = "Di luar rumah";

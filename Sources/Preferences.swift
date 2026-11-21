@@ -21,6 +21,8 @@ struct AppSettings: Equatable {
     var prayerSignal = true
     var prayerSignalMinutes = 5
     static let prayerSignalChoices = [1, 5, 10, 15]
+    /// At the adhan a dark curtain closes over every screen, until ⌘ + Esc is held or it opens by itself.
+    var prayerCurtain = false
     // Sound
     var playbackMode: PlaybackMode = .away
     /// Pause other media while the pre-adhan or the adhan plays, and resume it after.
@@ -72,6 +74,7 @@ final class UserDefaultsPreferences: PreferencesStoring {
         ("colorPreAdhan", \.colorPreAdhan),
         ("blinkColon", \.blinkColon),
         ("prayerSignal", \.prayerSignal),
+        ("prayerCurtain", \.prayerCurtain),
         ("notifyPreAdhan1", \.notifyPreAdhan1),
         ("notifyPreAdhan2", \.notifyPreAdhan2),
         ("notifyAtPrayer", \.notifyAtPrayer),

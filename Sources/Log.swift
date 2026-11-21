@@ -8,4 +8,6 @@ enum Log {
     /// When a sound starts, stops and why, and media paused for it. Read with:
     ///   log show --last 1d --info --predicate 'subsystem == "<bundle id>" AND category == "sound"'
     static let sound = Logger(subsystem: subsystem, category: "sound")
+    /// When the prayer curtain closes and opens, and why.
+    static let curtain = Logger(subsystem: subsystem, category: "curtain")
 }

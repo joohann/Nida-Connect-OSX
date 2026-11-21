@@ -9,6 +9,10 @@ final class PrayerModel: ObservableObject {
     @Published private var dismissedSignal: Date?
     /// Until when the gold label shows as a preview.
     @Published private var signalPreviewUntil: Date?
+    /// The prayer curtain while it is closed.
+    @Published private(set) var curtain: CurtainMoment?
+    /// The prayer time the curtain last closed for, so it closes once per prayer.
+    private var curtainHandled: Date?
     /// The prayer day in use: Nida's at home, Aladhan's for the current place when away.
     @Published private(set) var day: PrayerDay
     /// Set while the Mac is more than `away.distanceKm` from Nida's location.
@@ -182,6 +186,37 @@ final class PrayerModel: ObservableObject {
         dismissedSignal = started.date
     }
 
+    // MARK: Curtain
+
+    /// How long after the adhan the curtain opens by itself, so the Mac never stays locked.
+    static let curtainOpensAfter: TimeInterval = 20 * 60
+    /// The curtain only closes in the first minute of a prayer, not when the app starts later.
+    private static let curtainCloseWindow: TimeInterval = 60
+
+    private func updateCurtain() {
+        if let curtain, now >= curtain.opensAt { openCurtain(reason: "time is up") }
+        guard settings.prayerCurtain, curtain == nil,
+              let started = prayerClock.justStarted(day: day, now: now, duration: Self.curtainCloseWindow),
+              started.date != curtainHandled else { return }
+        curtainHandled = started.date
+        curtain = CurtainMoment(prayer: started.prayer, time: started.date,
+                                opensAt: started.date.addingTimeInterval(Self.curtainOpensAfter))
+        Log.curtain.notice("closed for \(started.prayer.rawValue, privacy: .public)")
+    }
+
+    /// Opens the curtain, for instance when ⌘ + Esc was held.
+    func openCurtain(reason: String) {
+        guard curtain != nil else { return }
+        curtain = nil
+        Log.curtain.notice("opened: \(reason, privacy: .public)")
+    }
+
+    /// Closes the curtain at once for the upcoming prayer, to see what it looks like.
+    func previewCurtain(seconds: TimeInterval) {
+        curtain = CurtainMoment(prayer: upcoming?.prayer ?? .dhuhr, time: now,
+                                opensAt: now.addingTimeInterval(seconds))
+    }
+
     /// The phase the menu bar shows in colour; `.normal` when colours are switched off.
     var menuBarPhase: CountdownPhase {
         guard settings.colorPreAdhan else { return .normal }
@@ -350,6 +385,7 @@ final class PrayerModel: ObservableObject {
         settings = next
         preferences.save(next)
         updater.automaticallyChecks = next.checkForUpdates
+        if !next.prayerCurtain && curtain != nil { openCurtain(reason: "switched off") }
         runDiscovery(discoveryNeeded)
         if !next.checkForUpdates { availableUpdate = nil }
         scheduleNotifications(force: true)
@@ -527,6 +563,7 @@ final class PrayerModel: ObservableObject {
                 self.now = self.clock()
                 self.scheduleNotifications()
                 self.playDueSound(since: previous)
+                self.updateCurtain()
                 if self.now.timeIntervalSince(self.lastAwayCheck) >= 60 { self.refreshAway() }
                 self.scheduleTick()
             }

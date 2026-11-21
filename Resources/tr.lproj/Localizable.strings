@@ -122,6 +122,11 @@
 "settings.colorPreAdhanHelp" = "Birinci ezan öncesinden (%1$ld dk) itibaren turuncu, ikinciden (%2$ld dk) itibaren kırmızı; Nida’daki ayara göre.";
 "settings.prayerSignal" = "Namaz vaktinde altın etiket";
 "settings.prayerSignalHelp" = "Ezan vaktinde geri sayım, namazın adını taşıyan altın bir etikete dönüşür. Odak bildirimi sessize alsa da görünür. Paneli açmak onu kapatır.";
+"settings.prayerCurtain" = "Namaz vaktinde perde";
+"settings.prayerCurtainHelp" = "Ezan vaktinde her ekranın üzerine koyu bir perde kapanır. Açmak için ⌘ + Esc tuşlarını 2 saniye basılı tutun; 20 dakika sonra kendiliğinden açılır.";
+"curtain.title" = "Namaz vakti";
+"curtain.hint" = "Açmak için ⌘ + Esc tuşlarını 2 saniye basılı tutun";
+"curtain.opensAt" = "%@ saatinde kendiliğinden açılır";
 "setup.away.title" = "Ev dışında";
 "setup.away.body" = "Ev dışında vakitler bulunduğunuz yere göre, Nida’daki gibi hesaplanır. macOS konumunuzu isteyecek: İzin Ver’i seçin.";
 "settings.away" = "Ev dışında";

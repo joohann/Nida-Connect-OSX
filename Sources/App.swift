@@ -4,6 +4,7 @@ import SwiftUI
 struct MenuBarApp: App {
     @StateObject private var model: PrayerModel
     private let localizer: Localizing
+    private let curtain: CurtainPresenter
 
     init() {
         do {
@@ -34,6 +35,10 @@ struct MenuBarApp: App {
             // Launch argument `-previewPrayerSignal <seconds>` shows the gold label at once, as a preview.
             let preview = UserDefaults.standard.double(forKey: "previewPrayerSignal")
             if preview > 0 { model.previewPrayerSignal(seconds: preview) }
+            // Launch argument `-previewCurtain <seconds>` closes the curtain at once, as a preview.
+            let curtainPreview = UserDefaults.standard.double(forKey: "previewCurtain")
+            if curtainPreview > 0 { model.previewCurtain(seconds: curtainPreview) }
+            curtain = CurtainPresenter(model: model, l: localizer)
             _model = StateObject(wrappedValue: model)
             self.localizer = localizer
         } catch {

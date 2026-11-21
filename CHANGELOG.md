@@ -4,6 +4,7 @@
 
 ### New
 
+- **Curtain at prayer time.** At the adhan a dark curtain closes over every screen, with the prayer's name in the middle, so the Mac pauses for the prayer. Hold ⌘ + Esc for 2 seconds to open it; it opens by itself after 20 minutes. Off by default; switch it on with Curtain at prayer time in the settings.
 - **Only at home.** A fourth choice for when this Mac plays the sounds: only while it is at home with Home Assistant, next to Away from home, Always and Off.
 
 ### Fixed

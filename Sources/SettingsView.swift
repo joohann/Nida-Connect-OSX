@@ -252,6 +252,9 @@ struct SettingsView: View {
                         .opacity(model.settings.prayerSignal ? 1 : 0.4)
                     }
                     .help(l.t("settings.prayerSignalHelp"))
+                    SettingsDivider()
+                    row("curtains.closed", .indigo, "settings.prayerCurtain", \.prayerCurtain)
+                        .help(l.t("settings.prayerCurtainHelp"))
                 }
                 group("settings.notifications") {
                     row("bell", .orange, "settings.notifyPreAdhan1", \.notifyPreAdhan1,
