@@ -4,30 +4,21 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
   <channel>
     <title>Nida Connect</title>
     <item>
-      <title>Nida Connect 1.4.0</title>
-      <pubDate>Sat, 21 Nov 2026 16:00:03 +0000</pubDate>
-      <sparkle:version>1.4.0</sparkle:version>
-      <sparkle:shortVersionString>1.4.0</sparkle:shortVersionString>
+      <title>Nida Connect 1.4.1</title>
+      <pubDate>Sat, 21 Nov 2026 16:07:15 +0000</pubDate>
+      <sparkle:version>1.4.1</sparkle:version>
+      <sparkle:shortVersionString>1.4.1</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/joohann/Nida-Connect-OSX/releases/tag/v1.4.0</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/joohann/Nida-Connect-OSX/releases/tag/v1.4.1</sparkle:fullReleaseNotesLink>
       <description sparkle:format="markdown"><![CDATA[
-### New
-
-- **Curtain at prayer time.** At the adhan a dark curtain closes over every screen, with the prayer's name in the middle, so the Mac pauses for the prayer. Hold ⌘ + Esc for 2 seconds to open it; it opens by itself after 20 minutes. Off by default; switch it on with Curtain at prayer time in the settings.
-- **Only at home.** A fourth choice for when this Mac plays the sounds: only while it is at home with Home Assistant, next to Away from home, Always and Off.
-
-### Fixed
-
-- **Away from home knows you are home.** When the Mac connects through Nabu Casa or an external address, it now also checks whether Home Assistant is on the same network. If it is, you are home and the Mac stays silent in Away from home mode.
-
 ### Changed
 
-- **Clearer settings.** Sections stand out on a white background, help texts are justified, the Test button sits with the sound settings and Check now lines up with the other buttons.
+- **Curtain in the setup.** The alerts step of the setup now offers the prayer curtain too, and the alerts summary in the settings mentions it.
 ]]></description>
-      <enclosure url="https://github.com/joohann/Nida-Connect-OSX/releases/download/v1.4.0/NidaConnect-1.4.0.dmg" type="application/octet-stream" sparkle:edSignature="35RlpkstzQ7NQPklFaer76KoqZJZwh2a4F5XzwaRKDvdZtpssJ53/SAQOGFTUhypgEbGZ94ueFIis6OkLoACAQ==" length="3913191"></enclosure>
+      <enclosure url="https://github.com/joohann/Nida-Connect-OSX/releases/download/v1.4.1/NidaConnect-1.4.1.dmg" type="application/octet-stream" sparkle:edSignature="Jb3KwTj4OYj4mdpk0gKsLks/I21WemYLVXLqj7jsEVfTdBAK0HXVs5FZLPEaGANpxxaRqrW12ZyuM2TrgjYMDA==" length="3923356"></enclosure>
     </item>
   </channel>
 </rss><!-- sparkle-signatures:
-edSignature: zDJVPNC2t9G1wFe1aDJAdbItgiuWA8Sj2ld8rfNGaSqGdykPc2YjlWTPVEbja8RSAG+zJIiKT78sWi8E9I7RAA==
-length: 2169
+edSignature: Fc8C88lI60DJ9oIStQEVJtmcz/680e2qA/jL12KxjxbWZsXK7vkIznJLqeqsf4V2wXr2/ajQHpKb0lvW5yiYDA==
+length: 1398
 -->
