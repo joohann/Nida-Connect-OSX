@@ -68,6 +68,8 @@ enum PlaybackMode: String, CaseIterable {
     /// Only while connected through Nabu Casa or the external address: at home Home Assistant plays.
     case away
     case always
+    /// The opposite of `away`: only while the Mac is at home with Home Assistant.
+    case home
     case off
 }
 

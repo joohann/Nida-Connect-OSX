@@ -90,8 +90,9 @@
 "settings.playback" = "在这台 Mac 上播放";
 "playback.away" = "不在家时";
 "playback.always" = "始终";
+"playback.home" = "在家时";
 "playback.off" = "关闭";
-"settings.soundHelp" = "声音、礼拜和音量来自 Nida：宣礼 %1$ld%%，晨礼 %2$ld%%，礼拜前提醒 %3$ld%%。不在家时指通过 Nabu Casa 或外部地址连接。";
+"settings.soundHelp" = "声音、礼拜和音量来自 Nida：宣礼 %1$ld%%，晨礼 %2$ld%%，礼拜前提醒 %3$ld%%。不在家时指 Home Assistant 不在这台 Mac 的网络中。";
 "settings.guestMode" = "Nida 已开启访客模式：不播放声音。";
 "playing.adhan" = "%@ 的宣礼";
 "playing.preAdhan" = "%@ 的礼拜前提醒";
@@ -214,9 +215,11 @@
 "alert.signal.short" = "金色";
 "setup.sound.bodyHA" = "在家时由 Home Assistant 播放宣礼。你的 Mac 也可以播放。";
 "playback.away.title" = "仅在外出时";
-"playback.away.body" = "通过 Nabu Casa 或外部地址连接时。";
+"playback.away.body" = "当 Home Assistant 不在这台 Mac 的网络中时。";
 "playback.always.title" = "总是";
 "playback.always.body" = "在家也播放，与 Home Assistant 一起。";
+"playback.home.title" = "仅在家时";
+"playback.home.body" = "当 Home Assistant 在这台 Mac 的网络中时。";
 "playback.off.title" = "从不";
 "playback.off.body" = "Mac 只显示时间和通知。";
 "sound.yes" = "是，在这台 Mac 上";

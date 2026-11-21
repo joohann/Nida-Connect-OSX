@@ -90,8 +90,9 @@
 "settings.playback" = "Putar di Mac ini";
 "playback.away" = "Di luar rumah";
 "playback.always" = "Selalu";
+"playback.home" = "Di rumah";
 "playback.off" = "Mati";
-"settings.soundHelp" = "Suara, salat, dan volume berasal dari Nida: azan %1$ld%%, Subuh %2$ld%%, pra-azan %3$ld%%. Di luar rumah berarti terhubung lewat Nabu Casa atau alamat eksternal.";
+"settings.soundHelp" = "Suara, salat, dan volume berasal dari Nida: azan %1$ld%%, Subuh %2$ld%%, pra-azan %3$ld%%. Di luar rumah berarti Home Assistant tidak ada di jaringan Mac ini.";
 "settings.guestMode" = "Mode tamu aktif di Nida: tanpa suara.";
 "playing.adhan" = "Azan %@";
 "playing.preAdhan" = "Pra-azan %@";
@@ -214,9 +215,11 @@
 "alert.signal.short" = "Emas";
 "setup.sound.bodyHA" = "Di rumah, Home Assistant memutar azan. Mac-mu juga bisa memutarnya.";
 "playback.away.title" = "Hanya saat di luar rumah";
-"playback.away.body" = "Saat terhubung lewat Nabu Casa atau alamat eksternal.";
+"playback.away.body" = "Saat Home Assistant tidak ada di jaringan Mac ini.";
 "playback.always.title" = "Selalu";
 "playback.always.body" = "Juga di rumah, bersama Home Assistant.";
+"playback.home.title" = "Hanya saat di rumah";
+"playback.home.body" = "Saat Home Assistant ada di jaringan Mac ini.";
 "playback.off.title" = "Tidak pernah";
 "playback.off.body" = "Mac hanya menampilkan waktu dan notifikasi.";
 "sound.yes" = "Ya, di Mac ini";

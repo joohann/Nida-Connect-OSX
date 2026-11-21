@@ -91,8 +91,9 @@
 "settings.playback" = "Play on this Mac";
 "playback.away" = "Away from home";
 "playback.always" = "Always";
+"playback.home" = "At home";
 "playback.off" = "Off";
-"settings.soundHelp" = "Sounds, prayers and volumes come from Nida: adhan %1$ld%%, Fajr %2$ld%%, pre-adhan %3$ld%%. Away from home means connected through Nabu Casa or the external address.";
+"settings.soundHelp" = "Sounds, prayers and volumes come from Nida: adhan %1$ld%%, Fajr %2$ld%%, pre-adhan %3$ld%%. Away from home means Home Assistant is not on this Mac's network.";
 "settings.guestMode" = "Guest mode is on in Nida: no sound.";
 "playing.adhan" = "Adhan for %@";
 "playing.preAdhan" = "Pre-adhan for %@";
@@ -215,9 +216,11 @@
 "alert.signal.short" = "Gold";
 "setup.sound.bodyHA" = "At home Home Assistant plays the adhan. Your Mac can play it too.";
 "playback.away.title" = "Only away from home";
-"playback.away.body" = "When connected through Nabu Casa or the external address.";
+"playback.away.body" = "When Home Assistant is not on this Mac's network.";
 "playback.always.title" = "Always";
 "playback.always.body" = "Also at home, next to Home Assistant.";
+"playback.home.title" = "Only at home";
+"playback.home.body" = "When Home Assistant is on this Mac's network.";
 "playback.off.title" = "Never";
 "playback.off.body" = "The Mac only shows the times and notifications.";
 "sound.yes" = "Yes, on this Mac";

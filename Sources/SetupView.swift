@@ -182,7 +182,7 @@ struct SetupView: View {
             if model.isStandalone {
                 standaloneSound
             } else {
-                ForEach([PlaybackMode.away, .always, .off], id: \.self) { mode in
+                ForEach([PlaybackMode.away, .always, .home, .off], id: \.self) { mode in
                     ChoiceCard(symbol: mode == .off ? "speaker.slash.fill" : "speaker.wave.2.fill",
                                tint: mode == .off ? .gray : .teal, title: l.t("playback.\(mode.rawValue).title"),
                                detail: l.t("playback.\(mode.rawValue).body"),
@@ -326,6 +326,33 @@ struct SetupWindow: View {
     }
 }
 
+/// Which volumes Nida uses, and whether guest mode is on; under the playback choice.
+struct NidaSoundInfo: View {
+    @ObservedObject var model: PrayerModel
+    let l: Localizing
+    var showsTest = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            JustifiedText(l.t("settings.soundHelp", model.audio.volumes[.adhan] ?? 0,
+                              model.audio.volumes[.fajrAdhan] ?? 0, model.audio.volumes[.preAdhanJingle] ?? 0))
+            if model.audio.guestModeActive(at: model.now) {
+                Label(l.t("settings.guestMode"), systemImage: "person.2")
+                    .font(.caption2).foregroundStyle(.orange)
+            }
+            if showsTest {
+                HStack {
+                    Spacer()
+                    Button(l.t(model.playing == nil ? "action.test" : "action.stop"), action: model.testSound)
+                        .controlSize(.mini)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 8).padding(.bottom, 6)
+    }
+}
+
 /// Location and sound away from home; used in the setup and in the settings.
 struct AwaySettings: View {
     @ObservedObject var model: PrayerModel
@@ -346,45 +373,28 @@ struct AwaySettings: View {
                 }
             }
             VStack(alignment: .leading, spacing: 4) {
-                Text(l.t(model.locationStatus == .denied ? "settings.locationDenied" : "settings.locationHelp",
-                         Int(model.config.away.distanceKm)))
-                    .font(.caption2)
-                    .foregroundStyle(model.locationStatus == .denied ? Color.orange : Color.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                JustifiedText(l.t(model.locationStatus == .denied ? "settings.locationDenied" : "settings.locationHelp",
+                                  Int(model.config.away.distanceKm)),
+                              color: model.locationStatus == .denied ? .systemOrange : .secondaryLabelColor)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 8).padding(.bottom, 6)
-            SettingsDivider()
             if showsPlayback {
-            SettingsRow(symbol: "speaker.wave.2", tint: .teal, title: l.t("settings.playback")) {
-                Menu {
-                    ForEach(PlaybackMode.allCases, id: \.self) { mode in
-                        Button(l.t("playback.\(mode.rawValue)")) { model.update { $0.playbackMode = mode } }
+                SettingsDivider()
+                SettingsRow(symbol: "speaker.wave.2", tint: .teal, title: l.t("settings.playback")) {
+                    Menu {
+                        ForEach(PlaybackMode.allCases, id: \.self) { mode in
+                            Button(l.t("playback.\(mode.rawValue)")) { model.update { $0.playbackMode = mode } }
+                        }
+                    } label: {
+                        Text(l.t("playback.\(model.settings.playbackMode.rawValue)"))
                     }
-                } label: {
-                    Text(l.t("playback.\(model.settings.playbackMode.rawValue)"))
+                    .menuStyle(.borderlessButton)
+                    .fixedSize()
+                    .controlSize(.small)
                 }
-                .menuStyle(.borderlessButton)
-                .fixedSize()
-                .controlSize(.small)
+                NidaSoundInfo(model: model, l: l, showsTest: true)
             }
-            }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(l.t("settings.soundHelp", model.audio.volumes[.adhan] ?? 0,
-                         model.audio.volumes[.fajrAdhan] ?? 0, model.audio.volumes[.preAdhanJingle] ?? 0))
-                    .font(.caption2).foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                if model.audio.guestModeActive(at: model.now) {
-                    Label(l.t("settings.guestMode"), systemImage: "person.2")
-                        .font(.caption2).foregroundStyle(.orange)
-                }
-                HStack {
-                    Spacer()
-                    Button(l.t(model.playing == nil ? "action.test" : "action.stop"), action: model.testSound)
-                        .controlSize(.mini)
-                }
-            }
-            .padding(.horizontal, 8).padding(.bottom, 6)
         }
     }
 

@@ -90,8 +90,9 @@
 "settings.playback" = "このMacで再生";
 "playback.away" = "外出中";
 "playback.always" = "常に";
+"playback.home" = "在宅中";
 "playback.off" = "オフ";
-"settings.soundHelp" = "サウンド、礼拝、音量はNidaの設定を使用：アザーン %1$ld%%、ファジュル %2$ld%%、プレアザーン %3$ld%%。外出中とはNabu Casaまたは外部アドレス経由で接続している状態です。";
+"settings.soundHelp" = "サウンド、礼拝、音量はNidaの設定を使用：アザーン %1$ld%%、ファジュル %2$ld%%、プレアザーン %3$ld%%。外出中とは、Home AssistantがこのMacのネットワーク上にない状態です。";
 "settings.guestMode" = "Nidaでゲストモードがオン：音は鳴りません。";
 "playing.adhan" = "%@のアザーン";
 "playing.preAdhan" = "%@のプレアザーン";
@@ -214,9 +215,11 @@
 "alert.signal.short" = "金";
 "setup.sound.bodyHA" = "自宅ではHome Assistantがアザーンを再生します。Macでも再生できます。";
 "playback.away.title" = "外出時のみ";
-"playback.away.body" = "Nabu Casaまたは外部アドレス経由で接続しているとき。";
+"playback.away.body" = "Home AssistantがこのMacのネットワーク上にないとき。";
 "playback.always.title" = "常に";
 "playback.always.body" = "自宅でも、Home Assistantと一緒に。";
+"playback.home.title" = "在宅時のみ";
+"playback.home.body" = "Home AssistantがこのMacのネットワーク上にあるとき。";
 "playback.off.title" = "しない";
 "playback.off.body" = "Macは時刻と通知のみ表示します。";
 "sound.yes" = "はい、このMacで";

@@ -90,8 +90,9 @@
 "settings.playback" = "التشغيل على هذا الـ Mac";
 "playback.away" = "خارج المنزل";
 "playback.always" = "دائمًا";
+"playback.home" = "في المنزل";
 "playback.off" = "إيقاف";
-"settings.soundHelp" = "الأصوات والصلوات ومستويات الصوت من Nida: الأذان %1$ld%%، الفجر %2$ld%%، ما قبل الأذان %3$ld%%. خارج المنزل يعني الاتصال عبر Nabu Casa أو العنوان الخارجي.";
+"settings.soundHelp" = "الأصوات والصلوات ومستويات الصوت من Nida: الأذان %1$ld%%، الفجر %2$ld%%، ما قبل الأذان %3$ld%%. خارج المنزل يعني أن Home Assistant ليس على شبكة هذا الـ Mac.";
 "settings.guestMode" = "وضع الضيف مفعّل في Nida: لا صوت.";
 "playing.adhan" = "أذان %@";
 "playing.preAdhan" = "ما قبل أذان %@";
@@ -214,9 +215,11 @@
 "alert.signal.short" = "ذهبي";
 "setup.sound.bodyHA" = "في المنزل يشغّل Home Assistant الأذان. ويمكن لجهاز Mac تشغيله أيضًا.";
 "playback.away.title" = "خارج المنزل فقط";
-"playback.away.body" = "عند الاتصال عبر Nabu Casa أو العنوان الخارجي.";
+"playback.away.body" = "عندما لا يكون Home Assistant على شبكة هذا الـ Mac.";
 "playback.always.title" = "دائمًا";
 "playback.always.body" = "في المنزل أيضًا، إلى جانب Home Assistant.";
+"playback.home.title" = "في المنزل فقط";
+"playback.home.body" = "عندما يكون Home Assistant على شبكة هذا الـ Mac.";
 "playback.off.title" = "أبدًا";
 "playback.off.body" = "يعرض الـ Mac الأوقات والإشعارات فقط.";
 "sound.yes" = "نعم، على هذا الـ Mac";

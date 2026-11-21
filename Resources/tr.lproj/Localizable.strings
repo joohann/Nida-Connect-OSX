@@ -90,8 +90,9 @@
 "settings.playback" = "Bu Mac’te çal";
 "playback.away" = "Ev dışında";
 "playback.always" = "Her zaman";
+"playback.home" = "Evde";
 "playback.off" = "Kapalı";
-"settings.soundHelp" = "Sesler, namazlar ve ses düzeyleri Nida’dan gelir: ezan %%%1$ld, sabah %%%2$ld, ezan öncesi %%%3$ld. Ev dışında, Nabu Casa veya harici adres üzerinden bağlı demektir.";
+"settings.soundHelp" = "Sesler, namazlar ve ses düzeyleri Nida’dan gelir: ezan %%%1$ld, sabah %%%2$ld, ezan öncesi %%%3$ld. Ev dışında, Home Assistant’ın bu Mac’in ağında olmadığı demektir.";
 "settings.guestMode" = "Nida’da misafir modu açık: ses yok.";
 "playing.adhan" = "%@ ezanı";
 "playing.preAdhan" = "%@ ezan öncesi";
@@ -214,9 +215,11 @@
 "alert.signal.short" = "Altın";
 "setup.sound.bodyHA" = "Evde ezanı Home Assistant çalar. Mac'in de çalabilir.";
 "playback.away.title" = "Yalnızca evden uzaktayken";
-"playback.away.body" = "Nabu Casa veya harici adres üzerinden bağlıyken.";
+"playback.away.body" = "Home Assistant bu Mac’in ağında değilken.";
 "playback.always.title" = "Her zaman";
 "playback.always.body" = "Evde de, Home Assistant ile birlikte.";
+"playback.home.title" = "Yalnızca evdeyken";
+"playback.home.body" = "Home Assistant bu Mac’in ağındayken.";
 "playback.off.title" = "Asla";
 "playback.off.body" = "Mac yalnızca vakitleri ve bildirimleri gösterir.";
 "sound.yes" = "Evet, bu Mac'te";

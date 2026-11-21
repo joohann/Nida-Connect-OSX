@@ -273,7 +273,7 @@ final class PrayerModel: ObservableObject {
 
     func stopDiscovery() {
         discoveryWanted = false
-        runDiscovery(connection != .connected)
+        runDiscovery(discoveryNeeded)
     }
 
     func openLocalNetworkSettings() {
@@ -350,6 +350,7 @@ final class PrayerModel: ObservableObject {
         settings = next
         preferences.save(next)
         updater.automaticallyChecks = next.checkForUpdates
+        runDiscovery(discoveryNeeded)
         if !next.checkForUpdates { availableUpdate = nil }
         scheduleNotifications(force: true)
         if turnedOn { Task { await authorizeNotifications() } }
@@ -635,15 +636,40 @@ final class PrayerModel: ObservableObject {
 
     // MARK: Sound
 
-    /// Whether the Mac plays the sounds itself right now. In "away" mode only over Nabu Casa or
-    /// the external address: at home Home Assistant plays them on its own speakers.
+    /// Whether the Mac plays the sounds itself right now. In "away" mode only away from home, where
+    /// Home Assistant's own speakers cannot be heard; in "home" mode only at home.
     var playsSoundsHere: Bool {
         if isStandalone { return standalone.playSounds }
         switch settings.playbackMode {
         case .off: return false
         case .always: return true
-        case .away: return routeKind == .nabuCasa || routeKind == .external
+        case .away: return awayFromHome
+        case .home: return !awayFromHome
         }
+    }
+
+    /// Away from home: connected over Nabu Casa or the external address, and Home Assistant is not
+    /// on the Mac's network.
+    private var awayFromHome: Bool {
+        (routeKind == .nabuCasa || routeKind == .external) && !onHomeNetwork
+    }
+
+    /// The modes that depend on where the Mac is.
+    private var playbackFollowsLocation: Bool {
+        !isStandalone && (settings.playbackMode == .away || settings.playbackMode == .home)
+    }
+
+    /// True when this Home Assistant announces itself on the network the Mac is on, so the Mac is at
+    /// home even when it connects through the external address or Nabu Casa.
+    var onHomeNetwork: Bool {
+        guard let name = endpoints.locationName else { return false }
+        return discovered.contains { $0.name == name }
+    }
+
+    /// Home detection needs Bonjour while playback depends on being home or away.
+    private var discoveryNeeded: Bool {
+        discoveryWanted || (connection != .connected && connection != .notConfigured)
+            || playbackFollowsLocation
     }
 
     /// Why a sound was stopped early, for the log.
@@ -702,8 +728,17 @@ final class PrayerModel: ObservableObject {
     }
 
     private func playDueSound(since previous: Date) {
-        guard playsSoundsHere, let sound = soundPlanner.due(from: previous, to: now, day: day,
-                                                           preAdhan: preAdhan, audio: audio) else { return }
+        guard let sound = soundPlanner.due(from: previous, to: now, day: day,
+                                           preAdhan: preAdhan, audio: audio) else { return }
+        guard playsSoundsHere else {
+            if playbackFollowsLocation {
+                Log.sound.notice("""
+                    not played: \(self.awayFromHome ? "away from home" : "at home", privacy: .public) \
+                    (\(self.settings.playbackMode.rawValue, privacy: .public) mode)
+                    """)
+            }
+            return
+        }
         play(sound)
     }
 
@@ -735,7 +770,7 @@ final class PrayerModel: ObservableObject {
             connection = state
             // While Home Assistant is out of reach, check whether macOS blocks the local network.
             if state == .connected { localNetworkDenied = false }
-            runDiscovery(discoveryWanted || (state != .connected && state != .notConfigured))
+            runDiscovery(discoveryNeeded)
         case .day(let next):
             guard next != nidaDay else { return }
             nidaDay = next

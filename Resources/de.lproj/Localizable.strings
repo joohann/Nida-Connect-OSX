@@ -90,8 +90,9 @@
 "settings.playback" = "Auf diesem Mac abspielen";
 "playback.away" = "Unterwegs";
 "playback.always" = "Immer";
+"playback.home" = "Zu Hause";
 "playback.off" = "Aus";
-"settings.soundHelp" = "Töne, Gebete und Lautstärken kommen aus Nida: Adhan %1$ld %%, Fadschr %2$ld %%, Pre-Adhan %3$ld %%. Unterwegs heißt: verbunden über Nabu Casa oder die externe Adresse.";
+"settings.soundHelp" = "Töne, Gebete und Lautstärken kommen aus Nida: Adhan %1$ld %%, Fadschr %2$ld %%, Pre-Adhan %3$ld %%. Unterwegs heißt: Home Assistant ist nicht im Netzwerk dieses Macs.";
 "settings.guestMode" = "Gastmodus ist in Nida an: kein Ton.";
 "playing.adhan" = "Adhan für %@";
 "playing.preAdhan" = "Pre-Adhan für %@";
@@ -214,9 +215,11 @@
 "alert.signal.short" = "Gold";
 "setup.sound.bodyHA" = "Zu Hause spielt Home Assistant den Adhan. Dein Mac kann ihn auch abspielen.";
 "playback.away.title" = "Nur unterwegs";
-"playback.away.body" = "Bei Verbindung über Nabu Casa oder die externe Adresse.";
+"playback.away.body" = "Wenn Home Assistant nicht im Netzwerk dieses Macs ist.";
 "playback.always.title" = "Immer";
 "playback.always.body" = "Auch zu Hause, neben Home Assistant.";
+"playback.home.title" = "Nur zu Hause";
+"playback.home.body" = "Wenn Home Assistant im Netzwerk dieses Macs ist.";
 "playback.off.title" = "Nie";
 "playback.off.body" = "Der Mac zeigt nur die Zeiten und Mitteilungen.";
 "sound.yes" = "Ja, auf diesem Mac";

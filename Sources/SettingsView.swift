@@ -76,7 +76,7 @@ struct SettingsView: View {
                 } else {
                     SettingsRow(symbol: "speaker.wave.2", tint: .teal, title: l.t("settings.playback")) {
                         Menu {
-                            ForEach([PlaybackMode.away, .always, .off], id: \.self) { mode in
+                            ForEach([PlaybackMode.away, .always, .home, .off], id: \.self) { mode in
                                 Button(l.t("playback.\(mode.rawValue)")) { model.update { $0.playbackMode = mode } }
                             }
                         } label: {
@@ -86,6 +86,7 @@ struct SettingsView: View {
                         .fixedSize()
                         .controlSize(.small)
                     }
+                    NidaSoundInfo(model: model, l: l, showsTest: true)
                 }
                 SettingsDivider()
                 let playsHere = model.isStandalone ? model.standalone.playSounds : model.settings.playbackMode != .off
@@ -108,9 +109,14 @@ struct SettingsView: View {
                 if model.config.updatesEnabled {
                     SettingsDivider()
                     SettingsRow(symbol: "arrow.down.circle", tint: .blue, title: l.t("settings.checkForUpdates")) {
-                        Button(l.t("action.checkNow"), action: model.checkForUpdates).controlSize(.mini).fixedSize()
                         SettingsSwitch(isOn: binding(\.checkForUpdates))
                     }
+                    HStack {
+                        Text(l.t("settings.version", model.config.version)).font(.caption2).foregroundStyle(.secondary)
+                        Spacer()
+                        Button(l.t("action.checkNow"), action: model.checkForUpdates).controlSize(.mini).fixedSize()
+                    }
+                    .padding(.leading, 36).padding(.trailing, 8).padding(.bottom, 6)
                 }
                 SettingsDivider()
                 SettingsRow(symbol: "wand.and.stars", tint: .purple, title: l.t("settings.runSetup")) {
@@ -119,7 +125,9 @@ struct SettingsView: View {
             }
             advancedSection
             HStack {
-                Text(l.t("settings.version", model.config.version)).font(.caption).foregroundStyle(.tertiary)
+                if !model.config.updatesEnabled {
+                    Text(l.t("settings.version", model.config.version)).font(.caption).foregroundStyle(.tertiary)
+                }
                 Spacer()
                 Button(l.t("action.quit", model.config.appName)) { NSApp.terminate(nil) }.controlSize(.small)
             }
@@ -269,7 +277,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(l.t(key)).font(.caption).foregroundStyle(.secondary).padding(.leading, 4)
             VStack(spacing: 0) { content() }
-                .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.05)))
+                .background(RoundedRectangle(cornerRadius: 8).fill(Color(nsColor: .controlBackgroundColor)))
         }
         .padding(.top, 10)
     }

@@ -90,8 +90,9 @@
 "settings.playback" = "Lire sur ce Mac";
 "playback.away" = "Hors de la maison";
 "playback.always" = "Toujours";
+"playback.home" = "À la maison";
 "playback.off" = "Désactivé";
-"settings.soundHelp" = "Sons, prières et volumes viennent de Nida : adhan %1$ld %%, Fajr %2$ld %%, pré-adhan %3$ld %%. Hors de la maison signifie connecté via Nabu Casa ou l’adresse externe.";
+"settings.soundHelp" = "Sons, prières et volumes viennent de Nida : adhan %1$ld %%, Fajr %2$ld %%, pré-adhan %3$ld %%. Hors de la maison signifie que Home Assistant n’est pas sur le réseau de ce Mac.";
 "settings.guestMode" = "Le mode invité est actif dans Nida : pas de son.";
 "playing.adhan" = "Adhan de %@";
 "playing.preAdhan" = "Pré-adhan de %@";
@@ -214,9 +215,11 @@
 "alert.signal.short" = "Or";
 "setup.sound.bodyHA" = "À la maison, Home Assistant joue l'adhan. Ton Mac peut aussi le jouer.";
 "playback.away.title" = "Seulement hors de chez moi";
-"playback.away.body" = "Connecté via Nabu Casa ou l'adresse externe.";
+"playback.away.body" = "Quand Home Assistant n’est pas sur le réseau de ce Mac.";
 "playback.always.title" = "Toujours";
 "playback.always.body" = "Aussi à la maison, en plus de Home Assistant.";
+"playback.home.title" = "Seulement à la maison";
+"playback.home.body" = "Quand Home Assistant est sur le réseau de ce Mac.";
 "playback.off.title" = "Jamais";
 "playback.off.body" = "Le Mac affiche seulement les heures et les notifications.";
 "sound.yes" = "Oui, sur ce Mac";

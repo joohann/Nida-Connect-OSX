@@ -32,11 +32,14 @@ struct HAEndpoints: Equatable, Codable {
     var internalURL: String?
     var externalURL: String?
     var cloudURL: String?
+    /// Home Assistant's name (`location_name`), which it also announces on the local network.
+    var locationName: String?
 
-    init(internalURL: String? = nil, externalURL: String? = nil, cloudURL: String? = nil) {
+    init(internalURL: String? = nil, externalURL: String? = nil, cloudURL: String? = nil, locationName: String? = nil) {
         self.internalURL = internalURL
         self.externalURL = externalURL
         self.cloudURL = cloudURL
+        self.locationName = locationName
     }
 
     /// From `get_config` (internal_url, external_url) and `cloud/status` (Nabu Casa remote UI).
@@ -47,6 +50,7 @@ struct HAEndpoints: Equatable, Codable {
         }
         internalURL = url(config?["internal_url"])
         externalURL = url(config?["external_url"])
+        locationName = (config?["location_name"] as? String).flatMap { $0.isEmpty ? nil : $0 }
         if let cloud, (cloud["logged_in"] as? Bool) == true, (cloud["remote_enabled"] as? Bool) != false,
            let domain = cloud["remote_domain"] as? String, !domain.isEmpty {
             cloudURL = url("https://" + domain)

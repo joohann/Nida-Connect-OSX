@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### New
+
+- **Only at home.** A fourth choice for when this Mac plays the sounds: only while it is at home with Home Assistant, next to Away from home, Always and Off.
+
+### Fixed
+
+- **Away from home knows you are home.** When the Mac connects through Nabu Casa or an external address, it now also checks whether Home Assistant is on the same network. If it is, you are home and the Mac stays silent in Away from home mode.
+
+### Changed
+
+- **Clearer settings.** Sections stand out on a white background, help texts are justified, the Test button sits with the sound settings and Check now lines up with the other buttons.
+
 ## 1.3.2
 
 ### Fixed

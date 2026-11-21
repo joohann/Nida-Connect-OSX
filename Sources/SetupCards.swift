@@ -146,3 +146,43 @@ struct VoiceRow: View {
         .padding(.horizontal, 12)
     }
 }
+
+/// Small explanatory text, justified and hyphenated, which SwiftUI's Text cannot do.
+struct JustifiedText: NSViewRepresentable {
+    let text: String
+    var color: NSColor = .secondaryLabelColor
+
+    init(_ text: String, color: NSColor = .secondaryLabelColor) {
+        self.text = text
+        self.color = color
+    }
+
+    func makeNSView(context: Context) -> NSTextField {
+        let field = NSTextField(wrappingLabelWithString: "")
+        field.isSelectable = false
+        field.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        return field
+    }
+
+    func updateNSView(_ field: NSTextField, context: Context) {
+        field.attributedStringValue = attributed
+    }
+
+    func sizeThatFits(_ proposal: ProposedViewSize, nsView: NSTextField, context: Context) -> CGSize? {
+        let width = proposal.width ?? 280
+        nsView.attributedStringValue = attributed
+        let size = nsView.cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: width, height: .greatestFiniteMagnitude))
+        return CGSize(width: width, height: ceil(size?.height ?? 0))
+    }
+
+    private var attributed: NSAttributedString {
+        let style = NSMutableParagraphStyle()
+        style.alignment = .justified
+        style.hyphenationFactor = 0.9
+        return NSAttributedString(string: text, attributes: [
+            .font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize - 1),
+            .foregroundColor: color,
+            .paragraphStyle: style,
+        ])
+    }
+}
