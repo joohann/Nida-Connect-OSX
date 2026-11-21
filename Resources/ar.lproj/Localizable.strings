@@ -218,6 +218,9 @@
 "alert.signal" = "ملصق ذهبي";
 "alert.signal.body" = "عند وقت الصلاة، حتى عندما يكتم التركيز الإشعارات.";
 "alert.signal.short" = "ذهبي";
+"alert.curtain" = "ستارة";
+"alert.curtain.body" = "ستارة داكنة على الشاشة عند الأذان. اضغط مطولًا على ⌘ + Esc لفتحها.";
+"alert.curtain.short" = "ستارة";
 "setup.sound.bodyHA" = "في المنزل يشغّل Home Assistant الأذان. ويمكن لجهاز Mac تشغيله أيضًا.";
 "playback.away.title" = "خارج المنزل فقط";
 "playback.away.body" = "عندما لا يكون Home Assistant على شبكة هذا الـ Mac.";

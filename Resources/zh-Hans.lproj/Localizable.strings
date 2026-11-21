@@ -218,6 +218,9 @@
 "alert.signal" = "金色标签";
 "alert.signal.body" = "礼拜时显示，即使专注模式静音了通知。";
 "alert.signal.short" = "金色";
+"alert.curtain" = "帘幕";
+"alert.curtain.body" = "宣礼时用深色帘幕盖住屏幕。按住 ⌘ + Esc 即可打开。";
+"alert.curtain.short" = "帘幕";
 "setup.sound.bodyHA" = "在家时由 Home Assistant 播放宣礼。你的 Mac 也可以播放。";
 "playback.away.title" = "仅在外出时";
 "playback.away.body" = "当 Home Assistant 不在这台 Mac 的网络中时。";

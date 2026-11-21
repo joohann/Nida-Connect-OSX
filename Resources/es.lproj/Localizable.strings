@@ -218,6 +218,9 @@
 "alert.signal" = "Etiqueta dorada";
 "alert.signal.body" = "A la hora de la oración, también cuando Concentración silencia las notificaciones.";
 "alert.signal.short" = "Oro";
+"alert.curtain" = "Cortina";
+"alert.curtain.body" = "Una cortina oscura sobre la pantalla con el adhan. Mantén ⌘ + Esc para abrirla.";
+"alert.curtain.short" = "Cortina";
 "setup.sound.bodyHA" = "En casa, Home Assistant reproduce el adhan. Tu Mac también puede hacerlo.";
 "playback.away.title" = "Solo fuera de casa";
 "playback.away.body" = "Cuando Home Assistant no está en la red de este Mac.";

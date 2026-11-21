@@ -218,6 +218,9 @@
 "alert.signal" = "Label emas";
 "alert.signal.body" = "Saat waktu salat, juga saat Fokus membisukan notifikasi.";
 "alert.signal.short" = "Emas";
+"alert.curtain" = "Tirai";
+"alert.curtain.body" = "Tirai gelap menutup layar saat azan. Tahan ⌘ + Esc untuk membuka.";
+"alert.curtain.short" = "Tirai";
 "setup.sound.bodyHA" = "Di rumah, Home Assistant memutar azan. Mac-mu juga bisa memutarnya.";
 "playback.away.title" = "Hanya saat di luar rumah";
 "playback.away.body" = "Saat Home Assistant tidak ada di jaringan Mac ini.";

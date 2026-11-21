@@ -218,6 +218,9 @@
 "alert.signal" = "Goldenes Label";
 "alert.signal.body" = "Zur Gebetszeit, auch wenn Fokus Mitteilungen stummschaltet.";
 "alert.signal.short" = "Gold";
+"alert.curtain" = "Vorhang";
+"alert.curtain.body" = "Ein dunkler Vorhang über dem Bildschirm beim Adhan. Halte ⌘ + Esc zum Öffnen.";
+"alert.curtain.short" = "Vorhang";
 "setup.sound.bodyHA" = "Zu Hause spielt Home Assistant den Adhan. Dein Mac kann ihn auch abspielen.";
 "playback.away.title" = "Nur unterwegs";
 "playback.away.body" = "Wenn Home Assistant nicht im Netzwerk dieses Macs ist.";

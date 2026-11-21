@@ -132,7 +132,7 @@ struct SetupView: View {
         }
     }
 
-    /// Notification, colour and gold label as three cards you switch on or off.
+    /// Notification, colour, gold label and curtain as cards you switch on or off.
     private var alerts: some View {
         VStack(alignment: .leading, spacing: 10) {
             title("setup.alerts.title", "setup.alerts.body")
@@ -164,6 +164,15 @@ struct SetupView: View {
             ToggleCard(symbol: "sparkles", tint: .yellow, title: l.t("alert.signal"),
                        detail: l.t("alert.signal.body"), isOn: flag(\.prayerSignal)) {
                 Image(nsImage: MenuBarRenderer.badge(symbol: nil, text: l.t(Prayer.asr.localizationKey), dimmed: false))
+            }
+            ToggleCard(symbol: "curtains.closed", tint: .indigo, title: l.t("alert.curtain"),
+                       detail: l.t("alert.curtain.body"), isOn: flag(\.prayerCurtain)) {
+                Text("⌘ Esc")
+                    .font(.caption.monospaced())
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 1)
+                    .overlay(RoundedRectangle(cornerRadius: 4).stroke(.secondary.opacity(0.5)))
+                    .foregroundStyle(.secondary)
             }
             if model.notificationsDenied && model.settings.notifiesPrayers {
                 Text(l.t("settings.notificationsDenied")).font(.caption).foregroundStyle(.orange)

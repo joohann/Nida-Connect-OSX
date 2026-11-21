@@ -218,6 +218,9 @@
 "alert.signal" = "Étiquette dorée";
 "alert.signal.body" = "À l'heure de la prière, même quand Concentration coupe les notifications.";
 "alert.signal.short" = "Or";
+"alert.curtain" = "Rideau";
+"alert.curtain.body" = "Un rideau sombre sur l’écran à l’adhan. Maintenez ⌘ + Échap pour l’ouvrir.";
+"alert.curtain.short" = "Rideau";
 "setup.sound.bodyHA" = "À la maison, Home Assistant joue l'adhan. Ton Mac peut aussi le jouer.";
 "playback.away.title" = "Seulement hors de chez moi";
 "playback.away.body" = "Quand Home Assistant n’est pas sur le réseau de ce Mac.";

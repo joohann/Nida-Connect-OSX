@@ -218,6 +218,9 @@
 "alert.signal" = "Gouden label";
 "alert.signal.body" = "Bij het gebed, ook als Focus meldingen dempt.";
 "alert.signal.short" = "Goud";
+"alert.curtain" = "Gordijn";
+"alert.curtain.body" = "Een donker gordijn over het scherm bij de adhan. Houd ⌘ + Esc vast om te openen.";
+"alert.curtain.short" = "Gordijn";
 "setup.sound.bodyHA" = "Thuis speelt Home Assistant de adhan. Je Mac kan hem ook afspelen.";
 "playback.away.title" = "Als je niet thuis bent";
 "playback.away.body" = "Als Home Assistant niet op het netwerk van deze Mac zit.";

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Curtain in the setup.** The alerts step of the setup now offers the prayer curtain too, and the alerts summary in the settings mentions it.
+
 ## 1.4.0
 
 ### New

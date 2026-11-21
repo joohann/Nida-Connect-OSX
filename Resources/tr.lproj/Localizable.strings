@@ -218,6 +218,9 @@
 "alert.signal" = "Altın etiket";
 "alert.signal.body" = "Namaz vaktinde, Odak bildirimleri sessize alsa bile.";
 "alert.signal.short" = "Altın";
+"alert.curtain" = "Perde";
+"alert.curtain.body" = "Ezan vaktinde ekranın üzerine koyu bir perde. Açmak için ⌘ + Esc basılı tutun.";
+"alert.curtain.short" = "Perde";
 "setup.sound.bodyHA" = "Evde ezanı Home Assistant çalar. Mac'in de çalabilir.";
 "playback.away.title" = "Yalnızca evden uzaktayken";
 "playback.away.body" = "Home Assistant bu Mac’in ağında değilken.";

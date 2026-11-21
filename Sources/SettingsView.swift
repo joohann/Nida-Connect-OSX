@@ -172,7 +172,8 @@ struct SettingsView: View {
 
     private var alertsSummary: String {
         let s = model.settings
-        let on = [s.colorPreAdhan ? l.t("alert.color.short") : nil, s.prayerSignal ? l.t("alert.signal.short") : nil]
+        let on = [s.colorPreAdhan ? l.t("alert.color.short") : nil, s.prayerSignal ? l.t("alert.signal.short") : nil,
+                  s.prayerCurtain ? l.t("alert.curtain.short") : nil]
             .compactMap { $0 }
         return on.isEmpty ? l.t("state.off") : on.joined(separator: " · ")
     }

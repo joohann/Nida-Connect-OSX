@@ -219,6 +219,9 @@
 "alert.signal" = "Gold label";
 "alert.signal.body" = "At prayer time, also when Focus mutes notifications.";
 "alert.signal.short" = "Gold";
+"alert.curtain" = "Curtain";
+"alert.curtain.body" = "A dark curtain over the screen at the adhan. Hold ⌘ + Esc to open.";
+"alert.curtain.short" = "Curtain";
 "setup.sound.bodyHA" = "At home Home Assistant plays the adhan. Your Mac can play it too.";
 "playback.away.title" = "Only away from home";
 "playback.away.body" = "When Home Assistant is not on this Mac's network.";
