@@ -2,7 +2,7 @@
   "appName": "Nida Connect",
   "executableName": "NidaConnect",
   "bundleId": "nl.majikan.nidaconnect",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "minimumMacOS": "13.0",
   "repository": "joohann/Nida-Connect-OSX",
   "signing": {
