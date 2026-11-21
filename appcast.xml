@@ -4,21 +4,30 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
   <channel>
     <title>Nida Connect</title>
     <item>
-      <title>Nida Connect 1.3.2</title>
-      <pubDate>Sat, 21 Nov 2026 11:59:56 +0000</pubDate>
-      <sparkle:version>1.3.2</sparkle:version>
-      <sparkle:shortVersionString>1.3.2</sparkle:shortVersionString>
+      <title>Nida Connect 1.4.0</title>
+      <pubDate>Sat, 21 Nov 2026 16:00:03 +0000</pubDate>
+      <sparkle:version>1.4.0</sparkle:version>
+      <sparkle:shortVersionString>1.4.0</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/joohann/Nida-Connect-OSX/releases/tag/v1.3.2</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/joohann/Nida-Connect-OSX/releases/tag/v1.4.0</sparkle:fullReleaseNotesLink>
       <description sparkle:format="markdown"><![CDATA[
+### New
+
+- **Curtain at prayer time.** At the adhan a dark curtain closes over every screen, with the prayer's name in the middle, so the Mac pauses for the prayer. Hold ⌘ + Esc for 2 seconds to open it; it opens by itself after 20 minutes. Off by default; switch it on with Curtain at prayer time in the settings.
+- **Only at home.** A fourth choice for when this Mac plays the sounds: only while it is at home with Home Assistant, next to Away from home, Always and Off.
+
 ### Fixed
 
-- **Paused music stays paused.** After the pre-adhan or the adhan, the app could start music that was not playing, because Music and Safari keep their audio output open while paused. Music and Spotify now report whether they play, other apps only count once they really go quiet after the pause, and only that is resumed.
+- **Away from home knows you are home.** When the Mac connects through Nabu Casa or an external address, it now also checks whether Home Assistant is on the same network. If it is, you are home and the Mac stays silent in Away from home mode.
+
+### Changed
+
+- **Clearer settings.** Sections stand out on a white background, help texts are justified, the Test button sits with the sound settings and Check now lines up with the other buttons.
 ]]></description>
-      <enclosure url="https://github.com/joohann/Nida-Connect-OSX/releases/download/v1.3.2/NidaConnect-1.3.2.dmg" type="application/octet-stream" sparkle:edSignature="WebU+uIUfqxlHYuJ5B1laQ3/10LQYedXt2ep/hrzPfbjiWI/bclUnEV5ZlnMZZdKUMa+L+DWaWRQYs80o7cQAg==" length="3828253"></enclosure>
+      <enclosure url="https://github.com/joohann/Nida-Connect-OSX/releases/download/v1.4.0/NidaConnect-1.4.0.dmg" type="application/octet-stream" sparkle:edSignature="35RlpkstzQ7NQPklFaer76KoqZJZwh2a4F5XzwaRKDvdZtpssJ53/SAQOGFTUhypgEbGZ94ueFIis6OkLoACAQ==" length="3913191"></enclosure>
     </item>
   </channel>
 </rss><!-- sparkle-signatures:
-edSignature: XZ8NQaI+78QX24ieDUzG4USaMMyNYaZT+NjsTMyPwy/3gt5fEAa9GcDdiBChhme/Ow8lrFcXWJLUgqE9P7GRAA==
-length: 1574
+edSignature: zDJVPNC2t9G1wFe1aDJAdbItgiuWA8Sj2ld8rfNGaSqGdykPc2YjlWTPVEbja8RSAG+zJIiKT78sWi8E9I7RAA==
+length: 2169
 -->
