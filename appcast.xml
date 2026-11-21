@@ -4,21 +4,21 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
   <channel>
     <title>Nida Connect</title>
     <item>
-      <title>Nida Connect 1.3.1</title>
-      <pubDate>Wed, 18 Nov 2026 11:42:33 +0000</pubDate>
-      <sparkle:version>1.3.1</sparkle:version>
-      <sparkle:shortVersionString>1.3.1</sparkle:shortVersionString>
+      <title>Nida Connect 1.3.2</title>
+      <pubDate>Sat, 21 Nov 2026 11:59:56 +0000</pubDate>
+      <sparkle:version>1.3.2</sparkle:version>
+      <sparkle:shortVersionString>1.3.2</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/joohann/Nida-Connect-OSX/releases/tag/v1.3.1</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/joohann/Nida-Connect-OSX/releases/tag/v1.3.2</sparkle:fullReleaseNotesLink>
       <description sparkle:format="markdown"><![CDATA[
-### New
+### Fixed
 
-- **Music pauses for the adhan.** While your Mac plays the pre-adhan or the adhan, music and video in other apps pause, browsers included, and continue when it ends or when you press Stop. Only what the app paused itself is resumed, so nothing starts that was not playing. On by default; switch it off with Pause music under Sound and notifications.
+- **Paused music stays paused.** After the pre-adhan or the adhan, the app could start music that was not playing, because Music and Safari keep their audio output open while paused. Music and Spotify now report whether they play, other apps only count once they really go quiet after the pause, and only that is resumed.
 ]]></description>
-      <enclosure url="https://github.com/joohann/Nida-Connect-OSX/releases/download/v1.3.1/NidaConnect-1.3.1.dmg" type="application/octet-stream" sparkle:edSignature="gsqfv8W8ENBbFWwXHDJKE3UQTy1bneT1BSGXj/YtlWoTnJ9/9xsZZlbBRZeqPt9bgPSlTjxQrhzpiRttSUeLBg==" length="3821361"></enclosure>
+      <enclosure url="https://github.com/joohann/Nida-Connect-OSX/releases/download/v1.3.2/NidaConnect-1.3.2.dmg" type="application/octet-stream" sparkle:edSignature="WebU+uIUfqxlHYuJ5B1laQ3/10LQYedXt2ep/hrzPfbjiWI/bclUnEV5ZlnMZZdKUMa+L+DWaWRQYs80o7cQAg==" length="3828253"></enclosure>
     </item>
   </channel>
 </rss><!-- sparkle-signatures:
-edSignature: M0SGPRSKTNWESB0jCM1KcBsi8gOgpbyOzIORq/WsbR15Niw5XpNb53o6Aenjvs/BRUWpI3FLVSP7V1J0b0LACw==
-length: 1600
+edSignature: XZ8NQaI+78QX24ieDUzG4USaMMyNYaZT+NjsTMyPwy/3gt5fEAa9GcDdiBChhme/Ow8lrFcXWJLUgqE9P7GRAA==
+length: 1574
 -->
